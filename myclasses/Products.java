@@ -1,8 +1,6 @@
 package myclasses;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -12,20 +10,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableRowSorter;
 
 public class Products extends JFrame implements ActionListener {
     // TODO Table data edit and table shift
@@ -39,6 +29,9 @@ public class Products extends JFrame implements ActionListener {
     private final JButton back_btn;
     private final JButton add_btn;
     private final JButton del_btn;
+    private final JButton update_btn;
+    private final JButton search_btn;
+    private final JTextField search_fld;
     private final JComboBox<String> productStatus_box;
     private final JComboBox<String> productCategory_box;
 
@@ -50,7 +43,7 @@ public class Products extends JFrame implements ActionListener {
         setBounds(100, 100, 1000, 600);
         setLocationRelativeTo(null);
         JPanel contentPane = new JPanel();
-        contentPane.setBackground(new Color(18, 77, 8));
+        contentPane.setBackground(new Color(77, 77, 77));
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         setContentPane(contentPane);
@@ -73,7 +66,7 @@ public class Products extends JFrame implements ActionListener {
         contentPane.add(manageRoom_lbl);
 
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setBounds(22, 65, 536, 366);
+        scrollPane.setBounds(22, 130, 536, 366);
         contentPane.add(scrollPane);
 
         table = new JTable();
@@ -118,7 +111,7 @@ public class Products extends JFrame implements ActionListener {
                         }
                         // Customize selection colors
                         if (isSelected) {
-                            component.setBackground(Color.RED); // Set red background for selected row
+                            component.setBackground(new Color(54, 173, 41)); // Set red background for selected row
                         }
 
                         return component;
@@ -152,6 +145,10 @@ public class Products extends JFrame implements ActionListener {
             ex.printStackTrace();
         }
 
+        search_fld = new JTextField();
+        search_fld.setBounds(300, 60, 151, 34);
+        contentPane.add(search_fld);
+        search_fld.setColumns(10);
 
         JLabel productId_lbl = new JLabel("Product Id");
         productId_lbl.setForeground(Color.BLACK);
@@ -160,7 +157,7 @@ public class Products extends JFrame implements ActionListener {
         contentPane.add(productId_lbl);
 
         productId_fld = new JTextField();
-        productId_fld.setBounds(631, 85, 151, 20);
+        productId_fld.setBounds(631, 85, 160, 20);
         contentPane.add(productId_fld);
         productId_fld.setColumns(10);
 
@@ -184,8 +181,8 @@ public class Products extends JFrame implements ActionListener {
         contentPane.add(productCategory_lbl);
 
         productCategory_box = new JComboBox<>();
-        productCategory_box.setModel(new DefaultComboBoxModel<>(new String[]{"Bread", "Drink", "Coat"}));
-        productCategory_box.setBounds(631, 195, 156, 22);
+        productCategory_box.setModel(new DefaultComboBoxModel<>(new String[]{"Antibiotics", "Vitamins"}));
+        productCategory_box.setBounds(631, 195, 160, 22);
         contentPane.add(productCategory_box);
 
 
@@ -208,8 +205,8 @@ public class Products extends JFrame implements ActionListener {
         contentPane.add(productStatus_lbl);
 
         productStatus_box = new JComboBox<>();
-        productStatus_box.setModel(new DefaultComboBoxModel<>(new String[]{"have", "doesn't"}));
-        productStatus_box.setBounds(631, 305, 156, 22);
+        productStatus_box.setModel(new DefaultComboBoxModel<>(new String[]{"Have", "Not Have"}));
+        productStatus_box.setBounds(631, 305, 160, 22);
         contentPane.add(productStatus_box);
 
 
@@ -231,14 +228,26 @@ public class Products extends JFrame implements ActionListener {
         contentPane.add(add_btn);
 
         del_btn = new JButton("Delete");
-        del_btn.setBounds(760, 420, 120, 34);
+        del_btn.setBounds(140, 60, 100, 34);
         del_btn.setFocusable(false);
         contentPane.add(del_btn);
+
+        update_btn = new JButton("Update");
+        update_btn.setBounds(20, 60, 100, 34);
+        update_btn.setFocusable(false);
+        contentPane.add(update_btn);
+
+        search_btn = new JButton("Search");
+        search_btn.setBounds(460, 60, 100, 34);
+        search_btn.setFocusable(false);
+        contentPane.add(search_btn);
 
         logOut_btn.addActionListener(this);
         back_btn.addActionListener(this);
         add_btn.addActionListener(this);
         del_btn.addActionListener(this);
+        update_btn.addActionListener(this);
+        search_btn.addActionListener(this);
 
         this.setVisible(true);
     }
@@ -398,7 +407,7 @@ public class Products extends JFrame implements ActionListener {
                     }
                     System.out.println(data);
                     // Check if the room is not booked
-                    if (data[4].equals("Not Booked")) {
+                    if (data[4].equals("Not Have")) {
                         try {
                             File inputFile = new File("files/products.txt");
                             File tempFile = new File("./files/products_temp.txt");
@@ -462,6 +471,114 @@ public class Products extends JFrame implements ActionListener {
                     }
                 }
             }
+        } else if (e.getSource() == update_btn) {
+            int selectedRow = table.getSelectedRow();
+
+            // Check if a row is selected
+            if (selectedRow != -1) {
+                // Get data from the selected row
+                String id = table.getValueAt(selectedRow, 0).toString();
+                String name = table.getValueAt(selectedRow, 1).toString();
+                String category = table.getValueAt(selectedRow, 2).toString();
+                String price = table.getValueAt(selectedRow, 3).toString();
+                String status = table.getValueAt(selectedRow, 4).toString();
+                String quantity = table.getValueAt(selectedRow, 5).toString();
+
+                JTextField idField = new JTextField(id);
+                JTextField nameField = new JTextField(name);
+                JTextField categoryField = new JTextField(category);
+                JTextField priceField = new JTextField(price);
+                JTextField quantityField = new JTextField(quantity);
+
+                JPanel panel = new JPanel(new GridLayout(0, 1));
+                panel.add(new JLabel("ID:"));
+                panel.add(idField);
+                panel.add(new JLabel("Name:"));
+                panel.add(nameField);
+                panel.add(new JLabel("Category:"));
+                panel.add(categoryField);
+                panel.add(new JLabel("Price:"));
+                panel.add(priceField);
+                panel.add(new JLabel("Quantity:"));
+                panel.add(quantityField);
+
+                int result = JOptionPane.showConfirmDialog(null, panel, "Update Product",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (result == JOptionPane.OK_OPTION) {
+                    // Update the data in the table
+                    table.setValueAt(idField.getText(), selectedRow, 0);
+                    table.setValueAt(nameField.getText(), selectedRow, 1);
+                    table.setValueAt(categoryField.getText(), selectedRow, 2);
+                    table.setValueAt(priceField.getText(), selectedRow, 3);
+                    table.setValueAt(quantityField.getText(), selectedRow, 5);
+
+                    // Update the data in the file
+                    try {
+                        File inputFile = new File("files/products.txt");
+                        File tempFile = new File("./files/products_temp.txt");
+
+                        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+                        String currentLine;
+                        while ((currentLine = reader.readLine()) != null) {
+                            // Split the current line into fields
+                            String[] id_f = currentLine.split(",");
+                            if (id_f.length > 0 && id_f[0].equals(id)) { // Assuming ID is the first field
+                                reader.readLine();
+                                reader.readLine();
+                                reader.readLine();
+                                reader.readLine();
+                                reader.readLine();
+                                reader.readLine();
+                                reader.readLine();
+                                continue;
+                            }
+                            // Write other lines as is
+                            writer.write(currentLine + System.getProperty("line.separator"));
+                        }
+
+                        // Write the updated data if it wasn't found earlier
+                        writer.write(System.getProperty("line.separator"));
+                        writer.write("Products Detail" + System.getProperty("line.separator"));
+                        writer.write(idField.getText() + System.getProperty("line.separator"));
+                        writer.write(nameField.getText() + System.getProperty("line.separator"));
+                        writer.write(categoryField.getText() + System.getProperty("line.separator"));
+                        writer.write(priceField.getText() + System.getProperty("line.separator"));
+                        writer.write(status + System.getProperty("line.separator"));
+                        writer.write(quantityField.getText() + System.getProperty("line.separator"));
+                        writer.write(System.getProperty("line.separator"));
+
+                        writer.close();
+                        reader.close();
+
+                        // delete the original file
+                        inputFile.delete();
+
+                        // rename the temp file to the original file name
+                        tempFile.renameTo(inputFile);
+
+                        JOptionPane.showMessageDialog(this, "Product updated successfully!");
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a row to update!");
+            }
+        } else if (e.getSource() == search_btn) {
+            searchProducts(search_fld.getText());
+        }
+    }
+
+    private void searchProducts(String searchText) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+
+        if (searchText.trim().length() == 0) {
+            sorter.setRowFilter(null);
+        } else {
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
         }
     }
 

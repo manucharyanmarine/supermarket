@@ -1,159 +1,159 @@
 Products Detail
 1
 Product 1
-Bread
+Antibiotics
 1000
-have
+Have
 1
 
 Products Detail
 2
 Product 2
-Bread
+Antibiotics
 1000
-have
-12
+Have
+1
 
 Products Detail
 3
 Product 3
-Drink
+Vitamins
 1000
-have
+Have
 5
 
 Products Detail
 4
 Product 4
-Bread
+Antibiotics
 1000
-doesn't
+Not Have
 0
 
 Products Detail
 5
 Product 5
-Bread
+Antibiotics
 1000
-have
+Have
 10
 
 Products Detail
 6
 Product 6
-Bread
+Antibiotics
 1000
-have
+Have
 2
 
 Products Detail
 7
 Product 7
-Bread
+Antibiotics
 1000
-have
+Have
 5
 
 Products Detail
 8
 Product 8
-Bread
+Antibiotics
 1000
-doesn't
+Not Have
 0
 
 Products Detail
 9
 Product 9
-Bread
+Antibiotics
 1000
-have
+Have
 1
 
 Products Detail
 10
 Product 10
-Bread
+Antibiotics
 1000
-have
+Have
 1
 
 Products Detail
 11
 Product 11
-Bread
+Antibiotics
 1000
-have
+Have
 1
 
 Products Detail
 12
 Product 12
-Drink
+Vitamins
 1000
-have
+Have
 5
 
 Products Detail
 13
 Product 13
-Drink
+Vitamins
 1000
-have
+Have
 5
 
 Products Detail
 14
 Product 14
-Drink
+Vitamins
 1000
-have
+Have
 5
 
 Products Detail
 15
 Product 15
-Drink
+Vitamins
 1000
-have
+Have
 5
 
 Products Detail
 16
 Product 16
-Drink
+Vitamins
 1000
-have
+Have
 5
 
 Products Detail
 17
 Product 17
-Drink
+Vitamins
 1000
-have
+Have
 5
 
 Products Detail
 18
 Product 18
-Bread
+Antibiotics
 1000
-have
+Have
 1
 
 Products Detail
 19
 Product 19
-Bread
+Antibiotics
 1000
-have
+Have
 1
 
 Products Detail
 20
 Product 20
-Bread
+Antibiotics
 1000
-have
+Have
 1

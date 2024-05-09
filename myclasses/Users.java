@@ -37,7 +37,7 @@ public class Users extends JFrame implements ActionListener {
         setBounds(100, 100, 1000, 600);
         setLocationRelativeTo(null);
         JPanel contentPane = new JPanel();
-        contentPane.setBackground(new Color(18, 77, 8));
+        contentPane.setBackground(new Color(77, 77, 77));
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         setContentPane(contentPane);

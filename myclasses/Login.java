@@ -57,7 +57,7 @@ public class Login extends JFrame implements ActionListener {
     setLocationRelativeTo(null);
     JPanel contentPane = new JPanel();
     contentPane.setForeground(Color.LIGHT_GRAY);
-    contentPane.setBackground(new Color(34, 108, 27));
+    contentPane.setBackground(new Color(77, 77, 77));
     contentPane.setBorder(null);
 
     setContentPane(contentPane);
@@ -132,15 +132,15 @@ public class Login extends JFrame implements ActionListener {
     contentPane.add(EyeBtn);
 
     signup = new JButton("Don't have an account?");
-    signup.setForeground(new Color(18, 77, 8));
+    signup.setForeground(new Color(17, 17, 17));
     signup.setBorder(BorderFactory.createEmptyBorder());
     signup.setFont(new Font("Calibri", Font.BOLD, 14));
-    signup.setBackground(new Color(34, 108, 27));
+    signup.setBackground(new Color(77, 77, 77));
     signup.setBounds(520, 320, 189, 30);
     signup.setFocusable(false);
     contentPane.add(signup);
 
-    JLabel LoginLblTxt = new JLabel("Supermarket");
+    JLabel LoginLblTxt = new JLabel("Pharmacy");
     LoginLblTxt.setForeground(Color.LIGHT_GRAY);
     LoginLblTxt.setFont(new Font("Modern No. 20", Font.PLAIN, 54));
     LoginLblTxt.setBounds(350, 20, 404, 82);
@@ -314,7 +314,7 @@ public class Login extends JFrame implements ActionListener {
                     // Hide the login frame and show the User dashboard
                     System.out.println("Exited from Login class");
                     this.setVisible(false);
-                    new UDashBoard();
+//                    new UDashBoard();
                     // Exit the loop
                     break;
                   }

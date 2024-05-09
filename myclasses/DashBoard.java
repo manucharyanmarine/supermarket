@@ -32,7 +32,7 @@ public class DashBoard extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         JPanel contentPane = new JPanel();
         contentPane.setForeground(Color.LIGHT_GRAY);
-        contentPane.setBackground(new Color(18, 77, 8));
+        contentPane.setBackground(new Color(77, 77, 77));
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         setContentPane(contentPane);
@@ -55,48 +55,50 @@ public class DashBoard extends JFrame implements ActionListener {
         }
 
         products_btn = new JButton("Products");
-        products_btn.setBounds(290, 150, 150, 120);
-        assert productsPhoto != null : "'room.png' not found";
-        Image products =
-                productsPhoto.getScaledInstance(
-                        products_btn.getWidth(), products_btn.getHeight(), Image.SCALE_SMOOTH);
-        products_btn.setIcon(new ImageIcon(products));
+        products_btn.setBounds(290, 150, 150, 70);
+//        assert productsPhoto != null : "'room.png' not found";
+//        Image products =
+//                productsPhoto.getScaledInstance(
+//                        products_btn.getWidth(), products_btn.getHeight(), Image.SCALE_SMOOTH);
+//        products_btn.setIcon(new ImageIcon(products));
+        products_btn.setText("Products");
         products_btn.setForeground(Color.WHITE);
         products_btn.setBackground(Color.LIGHT_GRAY);
         contentPane.add(products_btn);
 
-        JTextField products_lbl = new JTextField();
-        products_lbl.setText("Products");
-        products_lbl.setHorizontalAlignment(SwingConstants.CENTER);
-        products_lbl.setForeground(Color.WHITE);
-        products_lbl.setColumns(10);
-        products_lbl.setFont(new Font("Jokerman", Font.PLAIN, 22));
-        products_lbl.setBorder(null);
-        products_lbl.setBackground(new Color(18, 77, 8));
-        products_lbl.setBounds(310, 280, 120, 50);
-        contentPane.add(products_lbl);
+//        JTextField products_lbl = new JTextField();
+//        products_lbl.setText("Products");
+//        products_lbl.setHorizontalAlignment(SwingConstants.CENTER);
+//        products_lbl.setForeground(Color.WHITE);
+//        products_lbl.setColumns(10);
+//        products_lbl.setFont(new Font("Jokerman", Font.PLAIN, 22));
+//        products_lbl.setBorder(null);
+//        products_lbl.setBackground(new Color(77, 77, 77));
+//        products_lbl.setBounds(310, 280, 120, 50);
+//        contentPane.add(products_lbl);
 
 
         users_btn = new JButton("Users");
-        users_btn.setBounds(530, 150, 150, 120);
-        assert usersPhoto != null : "'room.png' not found";
-        Image users = usersPhoto.getScaledInstance(
-                users_btn.getWidth(), users_btn.getHeight(), Image.SCALE_SMOOTH);
-        users_btn.setIcon(new ImageIcon(users));
+        users_btn.setBounds(530, 150, 150, 70);
+//        assert usersPhoto != null : "'room.png' not found";
+//        Image users = usersPhoto.getScaledInstance(
+//                users_btn.getWidth(), users_btn.getHeight(), Image.SCALE_SMOOTH);
+//        users_btn.setIcon(new ImageIcon(users));
+        users_btn.setText("Users");
         users_btn.setForeground(Color.WHITE);
         users_btn.setBackground(Color.LIGHT_GRAY);
         contentPane.add(users_btn);
 
-        JTextField users_lbl = new JTextField();
-        users_lbl.setText("Users");
-        users_lbl.setHorizontalAlignment(SwingConstants.CENTER);
-        users_lbl.setForeground(Color.WHITE);
-        users_lbl.setColumns(10);
-        users_lbl.setFont(new Font("Jokerman", Font.PLAIN, 22));
-        users_lbl.setBorder(null);
-        users_lbl.setBackground(new Color(18, 77, 8));
-        users_lbl.setBounds(550, 280, 120, 50);
-        contentPane.add(users_lbl);
+//        JTextField users_lbl = new JTextField();
+//        users_lbl.setText("Users");
+//        users_lbl.setHorizontalAlignment(SwingConstants.CENTER);
+//        users_lbl.setForeground(Color.WHITE);
+//        users_lbl.setColumns(10);
+//        users_lbl.setFont(new Font("Jokerman", Font.PLAIN, 22));
+//        users_lbl.setBorder(null);
+//        users_lbl.setBackground(new Color(77, 77, 77));
+//        users_lbl.setBounds(550, 280, 120, 50);
+//        contentPane.add(users_lbl);
 
 
         logout_btn.addActionListener(this);

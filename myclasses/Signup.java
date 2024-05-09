@@ -59,7 +59,7 @@ public class Signup extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         JPanel contentPane = new JPanel();
         contentPane.setForeground(Color.LIGHT_GRAY);
-        contentPane.setBackground(new Color(18, 77, 8));
+        contentPane.setBackground(new Color(77, 77, 77));
         contentPane.setBorder(null);
 
         setContentPane(contentPane);
@@ -205,6 +205,7 @@ public class Signup extends JFrame implements ActionListener {
         contentPane.add(signup);
         signup.setFont(new Font("Tahoma", Font.BOLD, 15));
 
+        signup.addActionListener(this);
         exitButton.addActionListener(this);
         signin.addActionListener(this);
         EyeBtn.addActionListener(this);
