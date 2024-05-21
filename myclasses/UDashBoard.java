@@ -4,20 +4,23 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.print.PrinterException;
 import java.io.*;
 import java.util.Objects;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
 
 public class UDashBoard extends JFrame implements ActionListener {
     private static JButton profile_btn;
     private final JButton logout_btn;
     private final JButton filter_btn;
-    private final JButton refresh_btn;
     private final JButton addToBill_btn;
     private final JButton clear_btn;
     private final JButton print_btn;
@@ -27,12 +30,13 @@ public class UDashBoard extends JFrame implements ActionListener {
     private final JTextField productName_fld;
     private final JTable ordersTable;
     private final JComboBox<String> productCategory_box;
+    private final JLabel price_lbl;
+    private String selectedProductPrice;
 
     public UDashBoard() {
         System.out.println("Currently in UDashBoard class");
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("The Tipton Hotel Management");
         setBounds(100, 100, 1000, 600);
         setLocationRelativeTo(null);
         JPanel contentPane = new JPanel();
@@ -46,12 +50,12 @@ public class UDashBoard extends JFrame implements ActionListener {
         WelcomeLbl.setFont(new Font("Lucida Handwriting", Font.PLAIN, 35));
         WelcomeLbl.setForeground(Color.GRAY);
         WelcomeLbl.setHorizontalAlignment(SwingConstants.CENTER);
-        WelcomeLbl.setBounds(254, 11, 389, 80);
+        WelcomeLbl.setBounds(300, 11, 389, 80);
         contentPane.add(WelcomeLbl);
 
         JPanel titleBack_panel = new JPanel();
         titleBack_panel.setBorder(null);
-        titleBack_panel.setBounds(0, 11, 911, 68);
+        titleBack_panel.setBounds(0, 11, 1000, 68);
         contentPane.add(titleBack_panel);
 
         BufferedImage profile = null;
@@ -164,7 +168,7 @@ public class UDashBoard extends JFrame implements ActionListener {
         productId_fld.setBounds(20, 175, 90, 20);
         contentPane.add(productId_fld);
         productId_fld.setColumns(10);
-
+        productId_fld.setEditable(false);
 
         JLabel productName_lbl = new JLabel("Product Name");
         productName_lbl.setForeground(Color.BLACK);
@@ -176,7 +180,7 @@ public class UDashBoard extends JFrame implements ActionListener {
         productName_fld.setColumns(10);
         productName_fld.setBounds(130, 175, 210, 20);
         contentPane.add(productName_fld);
-
+        productName_fld.setEditable(false);
 
         JLabel productQuantity_lbl = new JLabel("Product Quantity");
         productQuantity_lbl.setForeground(Color.BLACK);
@@ -188,6 +192,22 @@ public class UDashBoard extends JFrame implements ActionListener {
         productQuantity_fld.setColumns(10);
         productQuantity_fld.setBounds(360, 175, 100, 20);
         contentPane.add(productQuantity_fld);
+        ListSelectionModel selectionModel = table.getSelectionModel();
+
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        productId_fld.setText((String) model.getValueAt(selectedRow, 0));
+                        productName_fld.setText((String) model.getValueAt(selectedRow, 1));
+                        productQuantity_fld.setText("1");
+                        selectedProductPrice = (String) model.getValueAt(selectedRow, 3);
+                    }
+                }
+            }
+        });
 
         print_btn = new JButton("Print");
         print_btn.setBounds(370, 500, 100, 25);
@@ -209,11 +229,6 @@ public class UDashBoard extends JFrame implements ActionListener {
         filter_btn.setBounds(680, 110, 100, 25);
         filter_btn.setFocusable(false);
         contentPane.add(filter_btn);
-
-        refresh_btn = new JButton("Refresh");
-        refresh_btn.setBounds(800, 110, 100, 25);
-        refresh_btn.setFocusable(false);
-        contentPane.add(refresh_btn);
 
         addToBill_btn = new JButton("Add to Bill");
         addToBill_btn.setBounds(100, 220, 100, 25);
@@ -248,15 +263,13 @@ public class UDashBoard extends JFrame implements ActionListener {
         ordersTable.getColumnModel().getColumn(0).setPreferredWidth(80);
         ordersTable.getColumnModel().getColumn(1).setPreferredWidth(82);
 
-        modelOrder.setRowCount(0);
-
         JLabel totalPrice_lbl = new JLabel("Total Price");
         totalPrice_lbl.setForeground(Color.BLACK);
         totalPrice_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
         totalPrice_lbl.setBounds(20, 500, 120, 23);
         contentPane.add(totalPrice_lbl);
 
-        JLabel price_lbl = new JLabel("55");
+        price_lbl = new JLabel("");
         price_lbl.setForeground(Color.BLACK);
         price_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
         price_lbl.setBounds(100, 500, 120, 23);
@@ -267,11 +280,9 @@ public class UDashBoard extends JFrame implements ActionListener {
         logout_btn.setFocusable(false);
         contentPane.add(logout_btn);
 
-
         logout_btn.addActionListener(this);
         profile_btn.addActionListener(this);
         filter_btn.addActionListener(this);
-        refresh_btn.addActionListener(this);
         addToBill_btn.addActionListener(this);
         clear_btn.addActionListener(this);
         print_btn.addActionListener(this);
@@ -297,17 +308,16 @@ public class UDashBoard extends JFrame implements ActionListener {
                 new Login();
             }
         } else if (e.getSource() == addToBill_btn) {
-            String prodId = productId_fld.getText(); // Room number
-            String prodName = productName_fld.getText(); // Room number
-            String prodCount = productQuantity_fld.getText().trim(); // Room price
-            String prodPrice = prodCount;
+            String prodId = productId_fld.getText();
+            String prodName = productName_fld.getText();
+            String prodCount = productQuantity_fld.getText().trim();
+            String prodPrice = selectedProductPrice;
 
             boolean prodIdEmpty = productId_fld.getText().isEmpty();
             boolean prodPriceEmpty = productQuantity_fld.getText().isEmpty();
             boolean prodQuantityEmpty = productName_fld.getText().isEmpty();
-
-            String line = "files/orders.txt";
-            if (!prodIdEmpty && !prodPriceEmpty && !prodQuantityEmpty) {
+            if (!prodQuantityEmpty && !prodIdEmpty && !prodPriceEmpty) {
+                String line = "files/orders.txt";
                 try {
                     File file = new File(line);
                     if (!file.exists()) {
@@ -319,14 +329,6 @@ public class UDashBoard extends JFrame implements ActionListener {
                         printWriter.close();
                     }
 
-                    BufferedReader rdfile3 = new BufferedReader(new FileReader("files/orders.txt"));
-                    int ttlLines3 = 0;
-                    while (rdfile3.readLine() != null) {
-                        ttlLines3++;
-                    }
-                    rdfile3.close();
-
-                    // Append room details to the file
                     FileWriter fileWriter = new FileWriter(file, true);
                     BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                     PrintWriter printWriter = new PrintWriter(bufferedWriter);
@@ -334,7 +336,8 @@ public class UDashBoard extends JFrame implements ActionListener {
                     printWriter.println(prodId);
                     printWriter.println(prodName);
                     printWriter.println(prodCount);
-                    printWriter.println(prodPrice);
+                    String total = String.valueOf(Integer.parseInt(prodCount) * Integer.parseInt(prodPrice));
+                    printWriter.println(total);
                     printWriter.println();
                     printWriter.close();
 
@@ -342,6 +345,53 @@ public class UDashBoard extends JFrame implements ActionListener {
                     productId_fld.setText(null);
                     productQuantity_fld.setText(null);
                     productName_fld.setText(null);
+
+                    // Update the data in the file
+                    try {
+                        File inputFile = new File("files/products.txt");
+                        File tempFile = new File("./files/products_temp.txt");
+
+                        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+                        String idField;
+                        String nameField;
+                        String categoryField;
+                        String priceField;
+                        String status;
+                        String quantityField;
+                        while ((reader.readLine()) != null) {
+                            // Split the current line into fields
+                            idField = reader.readLine();
+                            nameField = reader.readLine();
+                            categoryField = reader.readLine();
+                            priceField = reader.readLine();
+                            status = reader.readLine();
+                            quantityField = reader.readLine();
+                            reader.readLine();
+                            if (idField.length() > 0 && idField.equals(prodId)) { // Assuming ID is the first field
+                                quantityField = String.valueOf(Integer.parseInt(quantityField) - Integer.parseInt(prodCount));
+                                table.setValueAt(quantityField, table.getSelectedRow(), 5);
+                            }
+                            writer.write("Products Detail" + System.getProperty("line.separator"));
+                            writer.write(idField + System.getProperty("line.separator"));
+                            writer.write(nameField + System.getProperty("line.separator"));
+                            writer.write(categoryField + System.getProperty("line.separator"));
+                            writer.write(priceField + System.getProperty("line.separator"));
+                            writer.write(status + System.getProperty("line.separator"));
+                            writer.write(quantityField + System.getProperty("line.separator"));
+                            writer.write(System.getProperty("line.separator"));
+                        }
+                        writer.close();
+                        reader.close();
+
+                        inputFile.delete();
+                        tempFile.renameTo(inputFile);
+
+                        JOptionPane.showMessageDialog(this, "Product added successfully!");
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
 
                     System.out.println("Product added");
 
@@ -355,67 +405,79 @@ public class UDashBoard extends JFrame implements ActionListener {
                     String orderLine;
                     while ((orderLine = br.readLine()) != null) {
                         if (!orderLine.equals("Order Detail")) {
-                            String[] rowData = new String[4]; // create an array with 5 elements
-                            rowData[0] = orderLine; // add the first element to the Room Number column
+                            String[] rowData = new String[4];
+                            rowData[0] = orderLine;
                             for (int i = 1; i < 4; i++) {
-                                // read the next 4 lines and add the data to the corresponding column
                                 rowData[i] = br.readLine();
                             }
-                            model.addRow(rowData); // add the row to the JTable
-                            br.readLine(); // skip two empty lines
+                            model.addRow(rowData);
+                            br.readLine();
                             br.readLine();
                         }
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+
+                price_lbl.setText(String.valueOf(getColumnSum(ordersTable, 3)));
             } else {
                 JOptionPane.showMessageDialog(
-                        null, "Please Fill all the box", "Error", JOptionPane.WARNING_MESSAGE);
+                        null, "Please select product", "Error", JOptionPane.WARNING_MESSAGE);
             }
         } else if (e.getSource() == clear_btn) {
-            DefaultTableModel tempTbl = (DefaultTableModel) table.getModel();
-            int selectedRow = table.getSelectedRow();
+            productName_fld.setText(null);
+            productQuantity_fld.setText(null);
+            productId_fld.setText(null);
+        } else if (e.getSource() == print_btn) {
+            try {
+                // Display print dialog and print the table
+                if (ordersTable.print(JTable.PrintMode.FIT_WIDTH)) {
 
-            // Check if a row is selected
-            if (table.getSelectedRow() != -1) {
-
-                // Get data from the selected row
-                String[] data = new String[6];
-                for (int i = 0; i < 6; i++) {
-                    data[i] = tempTbl.getValueAt(selectedRow, i).toString();
+                    File file = new File("files/orders.txt");
+                    file.delete();
                 }
-                System.out.println(data);
-                // Check if the room is not booked
-//                if (data[4].equals("Not Booked")) {
-                    try {
-                        File inputFile = new File("files/products.txt");
+            } catch (PrinterException ex) {
+                ex.printStackTrace();
+            }
 
-                        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            // Create a JFrame to display the table and button
+            JFrame frame = new JFrame("Print and Clear Table Example");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setLayout(new java.awt.BorderLayout());
 
+            // Add the table and button to the frame
+            frame.add(new JScrollPane(ordersTable), java.awt.BorderLayout.CENTER);
+            frame.add(print_btn, java.awt.BorderLayout.SOUTH);
 
-                        String currentLine;
-                        int lineCounter = 0;
-                        while ((currentLine = reader.readLine()) != null) {
-                            lineCounter++;
-                            if (currentLine.contains(data[0])) {
-                                break;
-                                // skip the lines that contain the room number to delete
-                            }
-                        }
-                        System.out.println(lineCounter);
-                        System.out.println(currentLine);
+            // Display the frame
+            frame.pack();
+            frame.setVisible(true);
+        }
+    }
 
+    private static void clearTableData(DefaultTableModel model) {
+        model.setRowCount(0); // This clears all the rows in the table model
+    }
 
-                        reader.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-//                } else {
-//                    JOptionPane.showMessageDialog(this, "Room is Booked Please check out it first");
-//                }
+    public static double getColumnSum(JTable table, int columnIndex) {
+        double sum = 0.0;
+        TableModel model = table.getModel();
+
+        for (int row = 0; row < model.getRowCount(); row++) {
+            Object value = model.getValueAt(row, columnIndex);
+            if (value instanceof Number) {
+                sum += ((Number) value).doubleValue();
+            } else {
+                try {
+                    sum += Double.parseDouble(value.toString());
+                } catch (NumberFormatException e) {
+                    // Handle invalid number format
+                    e.printStackTrace();
+                }
             }
         }
+
+        return sum;
     }
 
     public static void main(String args[]) {

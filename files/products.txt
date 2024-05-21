@@ -12,7 +12,7 @@ Product 2
 Antibiotics
 1000
 Have
-1
+0
 
 Products Detail
 3
@@ -20,7 +20,7 @@ Product 3
 Vitamins
 1000
 Have
-5
+3
 
 Products Detail
 4
@@ -28,7 +28,7 @@ Product 4
 Antibiotics
 1000
 Not Have
-0
+-4
 
 Products Detail
 5
@@ -36,7 +36,7 @@ Product 5
 Antibiotics
 1000
 Have
-10
+2
 
 Products Detail
 6
@@ -44,7 +44,7 @@ Product 6
 Antibiotics
 1000
 Have
-2
+1
 
 Products Detail
 7
@@ -52,7 +52,7 @@ Product 7
 Antibiotics
 1000
 Have
-5
+3
 
 Products Detail
 8
@@ -157,3 +157,4 @@ Antibiotics
 1000
 Have
 1
+

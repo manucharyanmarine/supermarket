@@ -314,7 +314,7 @@ public class Login extends JFrame implements ActionListener {
                     // Hide the login frame and show the User dashboard
                     System.out.println("Exited from Login class");
                     this.setVisible(false);
-//                    new UDashBoard();
+                    new UDashBoard();
                     // Exit the loop
                     break;
                   }

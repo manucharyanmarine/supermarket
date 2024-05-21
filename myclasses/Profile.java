@@ -24,14 +24,10 @@ public class Profile extends JFrame implements ActionListener {
   private final JButton logoutButton;
   private final JButton backButton;
   private final JButton exitButton;
-  private final JButton editButton;
 
   public Profile() {
     System.out.println("Currently in Profile class");
     setResizable(false);
-    setTitle("The Tipton Hotel Management System");
-    setIconImage(
-        Toolkit.getDefaultToolkit().getImage(Profile.class.getResource("../images/titleIcon.png")));
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setBounds(100, 100, 1000, 600);
     setLocationRelativeTo(null);
@@ -70,7 +66,7 @@ public class Profile extends JFrame implements ActionListener {
     BufferedImage ImgLabel = null;
     try {
       ImgLabel =
-          ImageIO.read(Objects.requireNonNull(Profile.class.getResource("../images/profile.png")));
+          ImageIO.read(Objects.requireNonNull(Profile.class.getResource("../images/UserProfile3.png")));
 
     } catch (IOException e) {
       e.printStackTrace();
@@ -84,19 +80,14 @@ public class Profile extends JFrame implements ActionListener {
     JLabel ProfileInformationLbl = new JLabel("Profile Information");
     ProfileInformationLbl.setHorizontalAlignment(SwingConstants.CENTER);
     ProfileInformationLbl.setForeground(new Color(101, 119, 179));
-    ProfileInformationLbl.setFont(new Font("Pristina", Font.BOLD, 40));
-    ProfileInformationLbl.setBounds(303, 10, 297, 81);
+    ProfileInformationLbl.setFont(new Font("Lucida Handwriting", Font.BOLD, 40));
+    ProfileInformationLbl.setBounds(260, 10, 500, 81);
     contentPane.add(ProfileInformationLbl);
 
-    editButton = new JButton("Edit Info");
-    editButton.setOpaque(false);
-    editButton.setForeground(new Color(101, 119, 179));
-    editButton.setFont(new Font("Times New Roman", Font.BOLD, 17));
-    editButton.setBorder(BorderFactory.createEmptyBorder());
-    editButton.setBackground(new Color(0, 0, 0, 0));
-    editButton.setBounds(672, 387, 80, 30);
-    editButton.setFocusable(false);
-    contentPane.add(editButton);
+    JPanel titleBack_panel = new JPanel();
+    titleBack_panel.setBorder(null);
+    titleBack_panel.setBounds(0, 11, 1000, 80);
+    contentPane.add(titleBack_panel);
 
     exitButton = new JButton("Exit");
     exitButton.setFont(new Font("Tahoma", Font.BOLD, 10));
@@ -116,13 +107,7 @@ public class Profile extends JFrame implements ActionListener {
     logoutButton.setFocusable(false);
     contentPane.add(logoutButton);
 
-    JPanel panel_1 = new JPanel();
-    panel_1.setBackground(new Color(140, 140, 140));
-    panel_1.setBounds(0, 0, 200, 517);
-    contentPane.add(panel_1);
-
     logoutButton.addActionListener(this);
-    editButton.addActionListener(this);
     backButton.addActionListener(this);
     exitButton.addActionListener(this);
 
@@ -141,10 +126,6 @@ public class Profile extends JFrame implements ActionListener {
         System.out.println("Exited from Profile class");
         new Login();
       }
-    } else if (e.getSource() == editButton) {
-      this.setVisible(false);
-      System.out.println("Exited from Profile class");
-      new Edit();
     } else if (e.getSource() == backButton) {
       this.setVisible(false);
       System.out.println("Exited from Profile class");
