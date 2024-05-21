@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Objects;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -21,7 +22,7 @@ public class Products extends JFrame implements ActionListener {
     // TODO Table data edit and table shift
 
     private final JTable table;
-    private final JTextField productId_fld;
+    //    private final JTextField productId_fld;
     private final JTextField productPrice_fld;
     private final JTextField productQuantity_fld;
     private final JTextField productName_fld;
@@ -150,16 +151,16 @@ public class Products extends JFrame implements ActionListener {
         contentPane.add(search_fld);
         search_fld.setColumns(10);
 
-        JLabel productId_lbl = new JLabel("Product Id");
-        productId_lbl.setForeground(Color.BLACK);
-        productId_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        productId_lbl.setBounds(631, 60, 89, 23);
-        contentPane.add(productId_lbl);
+//        JLabel productId_lbl = new JLabel("Product Id");
+//        productId_lbl.setForeground(Color.BLACK);
+//        productId_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+//        productId_lbl.setBounds(631, 60, 89, 23);
+//        contentPane.add(productId_lbl);
 
-        productId_fld = new JTextField();
-        productId_fld.setBounds(631, 85, 160, 20);
-        contentPane.add(productId_fld);
-        productId_fld.setColumns(10);
+//        productId_fld = new JTextField();
+//        productId_fld.setBounds(631, 85, 160, 20);
+//        contentPane.add(productId_fld);
+//        productId_fld.setColumns(10);
 
 
         JLabel productName_lbl = new JLabel("Product Name");
@@ -254,8 +255,21 @@ public class Products extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        Integer productId_fld = null;
+        try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
+            String line;
+            // Check if the room number already exists in the file
+            System.out.println("Checking if room number already exists");
+            while ((line = br.readLine()) != null) {
+                if (Objects.equals(line, "Products Detail")) {
+                    productId_fld = Integer.valueOf(br.readLine());
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         // Get the input values from the text fields and combo boxes
-        String prodId = productId_fld.getText(); // Room number
+        String prodId = String.valueOf(productId_fld+1); // Room number
         String prodName = productName_fld.getText(); // Room number
         String prodCategory = (String) productCategory_box.getSelectedItem(); // Bed type
         String prodPrice = productPrice_fld.getText().trim(); // Room price
@@ -263,7 +277,6 @@ public class Products extends JFrame implements ActionListener {
         String prodCount = productQuantity_fld.getText().trim(); // Room price
 
         // Check if room number and price fields are empty
-        boolean prodIdEmpty = productId_fld.getText().isEmpty();
         boolean prodPriceEmpty = productPrice_fld.getText().isEmpty();
         boolean prodQuantityEmpty = productQuantity_fld.getText().isEmpty();
         ////////////////////////////
@@ -285,33 +298,8 @@ public class Products extends JFrame implements ActionListener {
             new DashBoard();
         } else if (e.getSource() == add_btn) {
             // Check if room number and price are not empty
-            if (!prodIdEmpty && !prodPriceEmpty && !prodQuantityEmpty) {
-                boolean flag = false;
-                try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
-                    String line;
-                    // Check if the room number already exists in the file
-                    System.out.println("Checking if room number already exists");
-                    while ((line = br.readLine()) != null) {
-                        if (line.equals(productId_fld.getText())) {
-                            flag = true;
-                            break;
-                        }
-                    }
-
-                    if (flag) {
-                        System.out.println("Room number already exists");
-                    } else {
-                        System.out.println("Room number available to add");
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                if (flag) {
-                    // Display a warning message if the room number already exists
-                    JOptionPane.showMessageDialog(
-                            null, "Room number already exist", "Error", JOptionPane.WARNING_MESSAGE);
-                } else if (!prodPrice.matches("\\d+")) {
+            if (!prodPriceEmpty && !prodQuantityEmpty) {
+                if (!prodPrice.matches("\\d+")) {
                     JOptionPane.showMessageDialog(
                             null, "Invalid Price", "Error", JOptionPane.WARNING_MESSAGE);
                 } else {
@@ -339,18 +327,18 @@ public class Products extends JFrame implements ActionListener {
                             FileWriter fileWriter = new FileWriter(file, true);
                             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                             PrintWriter printWriter = new PrintWriter(bufferedWriter);
+                            printWriter.println();
                             printWriter.println("Products Detail");
                             printWriter.println(prodId);
                             printWriter.println(prodName);
                             printWriter.println(prodCategory);
                             printWriter.println(prodPrice);
+                            printWriter.println(prodPrice);
                             printWriter.println(prodStatus);
                             printWriter.println(prodCount);
-                            printWriter.println();
                             printWriter.close();
 
                             // Clear text fields
-                            productId_fld.setText(null);
                             productPrice_fld.setText(null);
                             productName_fld.setText(null);
 
