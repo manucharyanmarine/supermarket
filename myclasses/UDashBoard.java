@@ -1,12 +1,5 @@
 package myclasses;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.awt.print.PrinterException;
-import java.io.*;
-import java.util.Objects;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,6 +9,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.print.PrinterException;
+import java.io.*;
+import java.util.Objects;
 
 public class UDashBoard extends JFrame implements ActionListener {
     private static JButton profile_btn;
@@ -34,7 +34,6 @@ public class UDashBoard extends JFrame implements ActionListener {
     private String selectedProductPrice;
 
     public UDashBoard() {
-        System.out.println("Currently in UDashBoard class");
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 1000, 600);
@@ -101,7 +100,6 @@ public class UDashBoard extends JFrame implements ActionListener {
 
         model.setRowCount(0);
 
-        // Set custom background colors for alternate rows
         table.setDefaultRenderer(
                 Object.class,
                 new DefaultTableCellRenderer() {
@@ -117,38 +115,35 @@ public class UDashBoard extends JFrame implements ActionListener {
                                 super.getTableCellRendererComponent(
                                         table, value, isSelected, hasFocus, row, column);
                         if (row % 2 == 0) {
-                            component.setBackground(new Color(230, 230, 230)); // Light gray for even rows
+                            component.setBackground(new Color(230, 230, 230));
                         } else {
-                            component.setBackground(Color.WHITE); // White for odd rows
+                            component.setBackground(Color.WHITE);
                         }
-                        // Customize selection colors
                         if (isSelected) {
-                            component.setBackground(Color.GREEN); // Set red background for selected row
+                            component.setBackground(Color.GREEN);
                         }
 
                         return component;
                     }
                 });
 
-        // Customize table header names
         JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(150, 150, 150)); // Dark gray for header background
-        header.setForeground(Color.WHITE); // White text color for header
+        header.setBackground(new Color(150, 150, 150));
+        header.setForeground(Color.WHITE);
         Font headerFont = header.getFont();
-        header.setFont(headerFont.deriveFont(Font.BOLD)); // Make the font bold
+        header.setFont(headerFont.deriveFont(Font.BOLD));
 
         try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (!line.equals("Products Detail")) //txt file title
+                if (!line.equals("Products Detail"))
                 {
-                    String[] rowData = new String[6]; // create an array with 5 elements
-                    rowData[0] = line; // add the first element to the Room Number column
+                    String[] rowData = new String[6];
+                    rowData[0] = line;
                     for (int i = 1; i < 6; i++) {
-                        // read the next 4 lines and add the data to the corresponding column
                         rowData[i] = br.readLine();
                     }
-                    model.addRow(rowData); // add the row to the JTable
+                    model.addRow(rowData);
                     br.readLine();
                     br.readLine();
                 }
@@ -156,7 +151,6 @@ public class UDashBoard extends JFrame implements ActionListener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
 
         JLabel productId_lbl = new JLabel("Product Id");
         productId_lbl.setForeground(Color.BLACK);
@@ -240,7 +234,6 @@ public class UDashBoard extends JFrame implements ActionListener {
         clear_btn.setFocusable(false);
         contentPane.add(clear_btn);
 
-
         JScrollPane scrollPaneOrder = new JScrollPane();
         scrollPaneOrder.setBounds(20, 280, 450, 200);
         contentPane.add(scrollPaneOrder);
@@ -290,12 +283,10 @@ public class UDashBoard extends JFrame implements ActionListener {
         this.setVisible(true);
     }
 
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == profile_btn) {
             setVisible(false);
-            System.out.println("Exited from UDashBoard class");
             new Profile();
         } else if (e.getSource() == logout_btn) {
             int yesORno =
@@ -304,7 +295,6 @@ public class UDashBoard extends JFrame implements ActionListener {
 
             if (yesORno == JOptionPane.YES_OPTION) {
                 setVisible(false);
-                System.out.println("Exited from UDashBoard class");
                 new Login();
             }
         } else if (e.getSource() == addToBill_btn) {
@@ -322,7 +312,6 @@ public class UDashBoard extends JFrame implements ActionListener {
                     File file = new File(line);
                     if (!file.exists()) {
                         file.createNewFile();
-                        // Append data to the file
                         FileWriter fileWriter = new FileWriter(file, true);
                         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                         PrintWriter printWriter = new PrintWriter(bufferedWriter);
@@ -341,12 +330,10 @@ public class UDashBoard extends JFrame implements ActionListener {
                     printWriter.println();
                     printWriter.close();
 
-                    // Clear text fields
                     productId_fld.setText(null);
                     productQuantity_fld.setText(null);
                     productName_fld.setText(null);
 
-                    // Update the data in the file
                     try {
                         File inputFile = new File("files/products.txt");
                         File tempFile = new File("./files/products_temp.txt");
@@ -361,7 +348,6 @@ public class UDashBoard extends JFrame implements ActionListener {
                         String status;
                         String quantityField;
                         while ((reader.readLine()) != null) {
-                            // Split the current line into fields
                             idField = reader.readLine();
                             nameField = reader.readLine();
                             categoryField = reader.readLine();
@@ -369,7 +355,7 @@ public class UDashBoard extends JFrame implements ActionListener {
                             status = reader.readLine();
                             quantityField = reader.readLine();
                             reader.readLine();
-                            if (idField.length() > 0 && idField.equals(prodId)) { // Assuming ID is the first field
+                            if (idField.length() > 0 && idField.equals(prodId)) {
                                 quantityField = String.valueOf(Integer.parseInt(quantityField) - Integer.parseInt(prodCount));
                                 table.setValueAt(quantityField, table.getSelectedRow(), 5);
                             }
@@ -430,7 +416,6 @@ public class UDashBoard extends JFrame implements ActionListener {
             productId_fld.setText(null);
         } else if (e.getSource() == print_btn) {
             try {
-                // Display print dialog and print the table
                 if (ordersTable.print(JTable.PrintMode.FIT_WIDTH)) {
 
                     File file = new File("files/orders.txt");
@@ -440,23 +425,16 @@ public class UDashBoard extends JFrame implements ActionListener {
                 ex.printStackTrace();
             }
 
-            // Create a JFrame to display the table and button
             JFrame frame = new JFrame("Print and Clear Table Example");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLayout(new java.awt.BorderLayout());
 
-            // Add the table and button to the frame
             frame.add(new JScrollPane(ordersTable), java.awt.BorderLayout.CENTER);
             frame.add(print_btn, java.awt.BorderLayout.SOUTH);
 
-            // Display the frame
             frame.pack();
             frame.setVisible(true);
         }
-    }
-
-    private static void clearTableData(DefaultTableModel model) {
-        model.setRowCount(0); // This clears all the rows in the table model
     }
 
     public static double getColumnSum(JTable table, int columnIndex) {
@@ -471,7 +449,6 @@ public class UDashBoard extends JFrame implements ActionListener {
                 try {
                     sum += Double.parseDouble(value.toString());
                 } catch (NumberFormatException e) {
-                    // Handle invalid number format
                     e.printStackTrace();
                 }
             }

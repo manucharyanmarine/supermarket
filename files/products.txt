@@ -28,7 +28,7 @@ Product 4
 Antibiotics
 1000
 Not Have
--4
+4
 
 Products Detail
 5

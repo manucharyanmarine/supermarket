@@ -1,28 +1,21 @@
 package myclasses;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Objects;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.Objects;
 
 public class Products extends JFrame implements ActionListener {
     // TODO Table data edit and table shift
 
     private final JTable table;
-    //    private final JTextField productId_fld;
     private final JTextField productPrice_fld;
     private final JTextField productQuantity_fld;
     private final JTextField productName_fld;
@@ -37,7 +30,6 @@ public class Products extends JFrame implements ActionListener {
     private final JComboBox<String> productCategory_box;
 
     public Products() {
-        System.out.println("Currently in ManageProduct class");
         setResizable(false);
         setTitle("Admin manage product");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,11 +52,11 @@ public class Products extends JFrame implements ActionListener {
         back_btn.setFocusable(false);
         contentPane.add(back_btn);
 
-        JLabel manageRoom_lbl = new JLabel("Products");
-        manageRoom_lbl.setForeground(Color.LIGHT_GRAY);
-        manageRoom_lbl.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
-        manageRoom_lbl.setBounds(10, 3, 180, 34);
-        contentPane.add(manageRoom_lbl);
+        JLabel products_lbl = new JLabel("Products");
+        products_lbl.setForeground(Color.LIGHT_GRAY);
+        products_lbl.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
+        products_lbl.setBounds(10, 3, 180, 34);
+        contentPane.add(products_lbl);
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setBounds(22, 130, 536, 366);
@@ -90,7 +82,6 @@ public class Products extends JFrame implements ActionListener {
 
         model.setRowCount(0);
 
-        // Set custom background colors for alternate rows
         table.setDefaultRenderer(
                 Object.class,
                 new DefaultTableCellRenderer() {
@@ -106,38 +97,34 @@ public class Products extends JFrame implements ActionListener {
                                 super.getTableCellRendererComponent(
                                         table, value, isSelected, hasFocus, row, column);
                         if (row % 2 == 0) {
-                            component.setBackground(new Color(230, 230, 230)); // Light gray for even rows
+                            component.setBackground(new Color(230, 230, 230));
                         } else {
-                            component.setBackground(Color.WHITE); // White for odd rows
+                            component.setBackground(Color.WHITE);
                         }
-                        // Customize selection colors
                         if (isSelected) {
-                            component.setBackground(new Color(54, 173, 41)); // Set red background for selected row
+                            component.setBackground(new Color(54, 173, 41));
                         }
 
                         return component;
                     }
                 });
 
-        // Customize table header names
         JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(150, 150, 150)); // Dark gray for header background
-        header.setForeground(Color.WHITE); // White text color for header
+        header.setBackground(new Color(150, 150, 150));
+        header.setForeground(Color.WHITE);
         Font headerFont = header.getFont();
-        header.setFont(headerFont.deriveFont(Font.BOLD)); // Make the font bold
+        header.setFont(headerFont.deriveFont(Font.BOLD));
 
         try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (!line.equals("Products Detail")) //txt file title
-                {
-                    String[] rowData = new String[6]; // create an array with 5 elements
-                    rowData[0] = line; // add the first element to the Room Number column
+                if (!line.equals("Products Detail")) {
+                    String[] rowData = new String[6];
+                    rowData[0] = line;
                     for (int i = 1; i < 6; i++) {
-                        // read the next 4 lines and add the data to the corresponding column
                         rowData[i] = br.readLine();
                     }
-                    model.addRow(rowData); // add the row to the JTable
+                    model.addRow(rowData);
                     br.readLine();
                     br.readLine();
                 }
@@ -151,18 +138,6 @@ public class Products extends JFrame implements ActionListener {
         contentPane.add(search_fld);
         search_fld.setColumns(10);
 
-//        JLabel productId_lbl = new JLabel("Product Id");
-//        productId_lbl.setForeground(Color.BLACK);
-//        productId_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
-//        productId_lbl.setBounds(631, 60, 89, 23);
-//        contentPane.add(productId_lbl);
-
-//        productId_fld = new JTextField();
-//        productId_fld.setBounds(631, 85, 160, 20);
-//        contentPane.add(productId_fld);
-//        productId_fld.setColumns(10);
-
-
         JLabel productName_lbl = new JLabel("Product Name");
         productName_lbl.setForeground(Color.BLACK);
         productName_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -173,7 +148,6 @@ public class Products extends JFrame implements ActionListener {
         productName_fld.setColumns(10);
         productName_fld.setBounds(631, 140, 160, 20);
         contentPane.add(productName_fld);
-
 
         JLabel productCategory_lbl = new JLabel("Product Category");
         productCategory_lbl.setForeground(Color.BLACK);
@@ -186,7 +160,6 @@ public class Products extends JFrame implements ActionListener {
         productCategory_box.setBounds(631, 195, 160, 22);
         contentPane.add(productCategory_box);
 
-
         JLabel productPrice_lbl = new JLabel("Product Price");
         productPrice_lbl.setForeground(Color.BLACK);
         productPrice_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -197,7 +170,6 @@ public class Products extends JFrame implements ActionListener {
         productPrice_fld.setColumns(10);
         productPrice_fld.setBounds(631, 250, 160, 20);
         contentPane.add(productPrice_fld);
-
 
         JLabel productStatus_lbl = new JLabel("Status");
         productStatus_lbl.setForeground(Color.BLACK);
@@ -210,7 +182,6 @@ public class Products extends JFrame implements ActionListener {
         productStatus_box.setBounds(631, 305, 160, 22);
         contentPane.add(productStatus_box);
 
-
         JLabel productQuantity_lbl = new JLabel("Product Quantity");
         productQuantity_lbl.setForeground(Color.BLACK);
         productQuantity_lbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -221,7 +192,6 @@ public class Products extends JFrame implements ActionListener {
         productQuantity_fld.setColumns(10);
         productQuantity_fld.setBounds(631, 360, 160, 20);
         contentPane.add(productQuantity_fld);
-
 
         add_btn = new JButton("Add");
         add_btn.setBounds(631, 420, 111, 34);
@@ -258,8 +228,6 @@ public class Products extends JFrame implements ActionListener {
         Integer productId_fld = null;
         try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
             String line;
-            // Check if the room number already exists in the file
-            System.out.println("Checking if room number already exists");
             while ((line = br.readLine()) != null) {
                 if (Objects.equals(line, "Products Detail")) {
                     productId_fld = Integer.valueOf(br.readLine());
@@ -268,36 +236,29 @@ public class Products extends JFrame implements ActionListener {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        // Get the input values from the text fields and combo boxes
-        String prodId = String.valueOf(productId_fld+1); // Room number
-        String prodName = productName_fld.getText(); // Room number
-        String prodCategory = (String) productCategory_box.getSelectedItem(); // Bed type
-        String prodPrice = productPrice_fld.getText().trim(); // Room price
-        String prodStatus = (String) productStatus_box.getSelectedItem(); // Room type
-        String prodCount = productQuantity_fld.getText().trim(); // Room price
+        String prodId = String.valueOf(productId_fld + 1);
+        String prodName = productName_fld.getText();
+        String prodCategory = (String) productCategory_box.getSelectedItem();
+        String prodPrice = productPrice_fld.getText().trim();
+        String prodStatus = (String) productStatus_box.getSelectedItem();
+        String prodCount = productQuantity_fld.getText().trim();
 
-        // Check if room number and price fields are empty
         boolean prodPriceEmpty = productPrice_fld.getText().isEmpty();
         boolean prodQuantityEmpty = productQuantity_fld.getText().isEmpty();
-        ////////////////////////////
 
         if (e.getSource() == logOut_btn) {
-            // Prompt for confirmation before logging out
             int yesORno =
                     JOptionPane.showConfirmDialog(
                             null, "Are you sure ?", "Alert!", JOptionPane.YES_NO_OPTION);
 
             if (yesORno == JOptionPane.YES_OPTION) {
                 this.setVisible(false);
-                System.out.println("Exited from ManageRoom class");
                 new Login();
             }
         } else if (e.getSource() == back_btn) {
             setVisible(false);
-            System.out.println("Exited from ManageRoom class");
             new DashBoard();
         } else if (e.getSource() == add_btn) {
-            // Check if room number and price are not empty
             if (!prodPriceEmpty && !prodQuantityEmpty) {
                 if (!prodPrice.matches("\\d+")) {
                     JOptionPane.showMessageDialog(
@@ -309,7 +270,6 @@ public class Products extends JFrame implements ActionListener {
                             File file = new File(line);
                             if (!file.exists()) {
                                 file.createNewFile();
-                                // Append data to the file
                                 FileWriter fileWriter = new FileWriter(file, true);
                                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                                 PrintWriter printWriter = new PrintWriter(bufferedWriter);
@@ -317,13 +277,8 @@ public class Products extends JFrame implements ActionListener {
                             }
 
                             BufferedReader rdfile3 = new BufferedReader(new FileReader("files/products.txt"));
-                            int ttlLines3 = 0;
-                            while (rdfile3.readLine() != null) {
-                                ttlLines3++;
-                            }
                             rdfile3.close();
 
-                            // Append room details to the file
                             FileWriter fileWriter = new FileWriter(file, true);
                             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                             PrintWriter printWriter = new PrintWriter(bufferedWriter);
@@ -338,7 +293,6 @@ public class Products extends JFrame implements ActionListener {
                             printWriter.println(prodCount);
                             printWriter.close();
 
-                            // Clear text fields
                             productPrice_fld.setText(null);
                             productName_fld.setText(null);
 
@@ -352,7 +306,6 @@ public class Products extends JFrame implements ActionListener {
                     }
                 }
             } else {
-                // Display a warning message if any box is not filled
                 JOptionPane.showMessageDialog(
                         null, "Please Fill all the box", "Error", JOptionPane.WARNING_MESSAGE);
             }
@@ -363,14 +316,13 @@ public class Products extends JFrame implements ActionListener {
                 String line;
                 while ((line = br.readLine()) != null) {
                     if (!line.equals("Products Detail")) {
-                        String[] rowData = new String[6]; // create an array with 5 elements
-                        rowData[0] = line; // add the first element to the Room Number column
+                        String[] rowData = new String[6];
+                        rowData[0] = line;
                         for (int i = 1; i < 6; i++) {
-                            // read the next 4 lines and add the data to the corresponding column
                             rowData[i] = br.readLine();
                         }
-                        model.addRow(rowData); // add the row to the JTable
-                        br.readLine(); // skip two empty lines
+                        model.addRow(rowData);
+                        br.readLine();
                         br.readLine();
                     }
                 }
@@ -385,23 +337,18 @@ public class Products extends JFrame implements ActionListener {
                 DefaultTableModel tempTbl = (DefaultTableModel) table.getModel();
                 int selectedRow = table.getSelectedRow();
 
-                // Check if a row is selected
                 if (table.getSelectedRow() != -1) {
-
-                    // Get data from the selected row
                     String[] data = new String[6];
                     for (int i = 0; i < 6; i++) {
                         data[i] = tempTbl.getValueAt(selectedRow, i).toString();
                     }
                     System.out.println(data);
-                    // Check if the room is not booked
                     if (data[4].equals("Not Have")) {
                         try {
                             File inputFile = new File("files/products.txt");
                             File tempFile = new File("./files/products_temp.txt");
                             System.out.println("temp file created");
 
-                            // Read the original file and write to the temp file, excluding the room to delete
                             BufferedReader reader = new BufferedReader(new FileReader(inputFile));
                             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
                             System.out.println("temp file updated");
@@ -412,7 +359,6 @@ public class Products extends JFrame implements ActionListener {
                                 lineCounter++;
                                 if (currentLine.contains(data[0])) {
                                     break;
-                                    // skip the lines that contain the room number to delete
                                 }
                             }
 
@@ -428,23 +374,17 @@ public class Products extends JFrame implements ActionListener {
                                 }
                             }
 
-                            System.out.println("Room deleted");
-
                             writer.close();
                             reader.close();
 
-                            // delete the original file
                             inputFile.delete();
                             System.out.println("Original file deleted");
-
-                            // rename the temp file to the original file name
                             tempFile.renameTo(inputFile);
                             System.out.println("temp file renamed as original file");
 
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
-                        // Remove the selected row from the table
                         tempTbl.removeRow(table.getSelectedRow());
                     } else {
                         JOptionPane.showMessageDialog(this, "Room is Booked Please check out it first");
@@ -462,9 +402,7 @@ public class Products extends JFrame implements ActionListener {
         } else if (e.getSource() == update_btn) {
             int selectedRow = table.getSelectedRow();
 
-            // Check if a row is selected
             if (selectedRow != -1) {
-                // Get data from the selected row
                 String id = table.getValueAt(selectedRow, 0).toString();
                 String name = table.getValueAt(selectedRow, 1).toString();
                 String category = table.getValueAt(selectedRow, 2).toString();
@@ -500,7 +438,6 @@ public class Products extends JFrame implements ActionListener {
                     table.setValueAt(priceField.getText(), selectedRow, 3);
                     table.setValueAt(quantityField.getText(), selectedRow, 5);
 
-                    // Update the data in the file
                     try {
                         File inputFile = new File("files/products.txt");
                         File tempFile = new File("./files/products_temp.txt");
@@ -509,7 +446,6 @@ public class Products extends JFrame implements ActionListener {
                         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
                         String currentLine;
                         while ((currentLine = reader.readLine()) != null) {
-                            // Split the current line into fields
                             String[] id_f = currentLine.split(",");
                             if (id_f.length > 0 && id_f[0].equals(id)) { // Assuming ID is the first field
                                 reader.readLine();
@@ -521,11 +457,9 @@ public class Products extends JFrame implements ActionListener {
                                 reader.readLine();
                                 continue;
                             }
-                            // Write other lines as is
                             writer.write(currentLine + System.getProperty("line.separator"));
                         }
 
-                        // Write the updated data if it wasn't found earlier
                         writer.write(System.getProperty("line.separator"));
                         writer.write("Products Detail" + System.getProperty("line.separator"));
                         writer.write(idField.getText() + System.getProperty("line.separator"));
@@ -539,10 +473,7 @@ public class Products extends JFrame implements ActionListener {
                         writer.close();
                         reader.close();
 
-                        // delete the original file
                         inputFile.delete();
-
-                        // rename the temp file to the original file name
                         tempFile.renameTo(inputFile);
 
                         JOptionPane.showMessageDialog(this, "Product updated successfully!");

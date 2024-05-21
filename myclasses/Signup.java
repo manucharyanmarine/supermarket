@@ -49,11 +49,7 @@ public class Signup extends JFrame implements ActionListener {
     private final JTextField phoneNumberField;
 
     public Signup() {
-        System.out.println("Currently in Signup class");
         setResizable(false);
-        setTitle("The Tipton Hotel Management System");
-        setIconImage(
-                Toolkit.getDefaultToolkit().getImage(Login.class.getResource("../images/titleIcon.png")));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 1000, 600);
         setLocationRelativeTo(null);
@@ -324,24 +320,19 @@ public class Signup extends JFrame implements ActionListener {
                         String line = Files.readAllLines(Paths.get("./files/user_login.txt")).get(i);
                         if (line.equals("User Name : " + user)) {
                             userflag = true;
-                            System.out.println("User name exists");
                             break;
                         }
                     }
-
-                    // for admin
                     for (int i = 0;
                          i < totalLines2;
-                         i++) { // Check if the username already exists in Admin Login file
+                         i++) {
                         String line = Files.readAllLines(Paths.get("./files/admin_login.txt")).get(i);
                         if (line.equals("User Name : " + user)) {
-                            System.out.println("User name exists as Admin");
                             adminflag = true;
                             break;
                         }
                     }
                     if (!userflag && !adminflag) {
-                        // If username is not taken, add user information to the file
                         printWriter.println("===============================================");
                         printWriter.println("Full Name : " + name);
                         printWriter.println("User Name : " + user);
@@ -353,7 +344,6 @@ public class Signup extends JFrame implements ActionListener {
                         System.out.println("New User details added");
 
                         this.setVisible(false);
-                        System.out.println("Exited from Signup class");
                         new Login(); // Open the login window
 
                     } else {
@@ -387,7 +377,6 @@ public class Signup extends JFrame implements ActionListener {
             }
         } else if (e.getSource() == signin) {
             this.setVisible(false);
-            System.out.println("Exited from Signup class");
             new Login();
         } else if (e.getSource() == exitButton) {
             int yesORno =
