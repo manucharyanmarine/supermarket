@@ -1,5 +1,9 @@
 package myclasses;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -7,10 +11,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Objects;
 
 public class Login extends JFrame implements ActionListener {
@@ -176,99 +180,72 @@ public class Login extends JFrame implements ActionListener {
                 boolean userbool = false;
                 isAdmin = false;
                 try {
-                    File file = new File("./files/admin_login.txt");
-                    if (!file.exists()) {
-                        boolean created = file.createNewFile();
-                        if (created) {
-                            System.out.println("File created successfully.");
-                        } else {
-                            System.out.println("File creation failed.");
+                    File adminFile = new File("./files/admin_login.json");
+                    if (!adminFile.exists()) {
+                        createDefaultAdminFile(adminFile);
+                    }
+
+                    JSONObject adminData = readJsonFile("./files/admin_login.json");
+                    if (adminData != null) {
+                        if (adminData.getString("username").equals(user) && adminData.getString("password").equals(pass)) {
+                            loginFlag = true;
+                            isAdmin = true;
+                            USERNAME = user;
+                            this.setVisible(false);
+                            new DashBoard();
+                            return;
                         }
-                        FileWriter fileWriter = new FileWriter(file, true);
-                        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                        PrintWriter printWriter = new PrintWriter(bufferedWriter);
-
-                        printWriter.println("===============================================");
-                        printWriter.println("User Name : admin");
-                        printWriter.println("Password : admin");
-                        printWriter.println("===============================================");
-                        printWriter.close();
                     }
 
-                    String uname = "User Name : " + user;
-                    String pin = "Password : " + pass;
-
-                    BufferedReader readFile1 = new BufferedReader(new FileReader("./files/admin_login.txt"));
-
-                    int totalLines1 = 0;
-                    while (readFile1.readLine() != null) {
-                        totalLines1++;
-                    }
-                    readFile1.close();
-
-                    for (int i = 0; i < totalLines1; i++) {
-                        Path adminLoginPath = Paths.get("./files/admin_login.txt");
-                        String line = Files.readAllLines(adminLoginPath).get(i);
-                        if (line.equals(uname)) {
-                            String line2 = Files.readAllLines(adminLoginPath).get((i + 1));
-                            if (line2.equals(pin)) {
+                    JSONObject userData = readJsonFile("./files/user_login.json");
+                    if (userData != null) {
+                        JSONArray users = userData.getJSONArray("users");
+                        for (int i = 0; i < users.length(); i++) {
+                            JSONObject userObj = users.getJSONObject(i);
+                            if (userObj.getString("username").equals(user) && userObj.getString("password").equals(pass)) {
                                 loginFlag = true;
-                                isAdmin = true;
+                                userbool = true;
                                 USERNAME = user;
+                                fullName = userObj.getString("fullName");
+                                phoneNumber = userObj.getString("phoneNumber");
+                                oldPassword = userObj.getString("password");
+                                fullUsername = "User Name : " + user;
                                 this.setVisible(false);
-                                new DashBoard();
-                                break;
-                            } else {
-                                isAdmin = false;
-                            }
-                        } else {
-                            isAdmin = false;
-                        }
-                    }
-
-                    if (!isAdmin) {
-                        File userfile = new File("./files/user_login.txt");
-                        if (userfile.exists()) { // Check if the file exists
-                            BufferedReader readFile =
-                                    new BufferedReader(new FileReader("./files/user_login.txt"));
-                            int totalLines = 0;
-                            while (readFile.readLine() != null) {
-                                totalLines++;
-                            }
-                            readFile.close();
-
-                            for (int i = 0; i < totalLines; i++) {
-                                Path userLoginPath = Paths.get("./files/user_login.txt");
-                                String line = Files.readAllLines(userLoginPath).get(i);
-                                if (line.equals(uname)) {
-                                    String line2 = Files.readAllLines(userLoginPath).get((i + 1));
-                                    if (line2.equals(pin)) {
-                                        loginFlag = true;
-                                        userbool = true;
-                                        USERNAME = user;
-                                        fullName = Files.readAllLines(userLoginPath).get(i - 1);
-                                        phoneNumber = Files.readAllLines(userLoginPath).get(i + 2);
-                                        oldPassword = Files.readAllLines(userLoginPath).get(i + 1);
-                                        fullUsername = uname;
-                                        this.setVisible(false);
-                                        new UDashBoard();
-                                        break;
-                                    }
-                                }
+                                new UDashBoard();
+                                return;
                             }
                         }
                     }
+
                     if (!userbool && !isAdmin) {
                         JOptionPane.showMessageDialog(
                                 null, "Invalid Name or Password!", "Warning!", JOptionPane.WARNING_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    if (!userbool && !isAdmin) {
-                        JOptionPane.showMessageDialog(
-                                null, "Invalid Name or Password!", "Warning!", JOptionPane.WARNING_MESSAGE);
-                    }
+                    JOptionPane.showMessageDialog(
+                            null, "An error occurred while processing login.", "Error", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
+        }
+    }
+
+    private void createDefaultAdminFile(File file) throws IOException {
+        JSONObject admin = new JSONObject();
+        admin.put("username", "admin");
+        admin.put("password", "admin");
+
+        try (FileWriter fileWriter = new FileWriter(file)) {
+            fileWriter.write(admin.toString());
+        }
+    }
+
+    private JSONObject readJsonFile(String filePath) {
+        try (FileReader reader = new FileReader(filePath)) {
+            return new JSONObject(new JSONTokener(reader));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

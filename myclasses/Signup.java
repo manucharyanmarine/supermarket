@@ -1,38 +1,23 @@
 package myclasses;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Panel;
-import java.awt.Toolkit;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.border.Border;
-
 public class Signup extends JFrame implements ActionListener {
 
     private final JTextField usernameField;
@@ -216,22 +201,20 @@ public class Signup extends JFrame implements ActionListener {
         System.out.println("isValidFullname function executed successfully");
         return fullname.matches(pattern);
     }
-
-    @Override
     public void actionPerformed(ActionEvent e) {
         // Get user input
         String user = usernameField.getText(); // Get username
         String pass = String.valueOf(passwordField.getPassword()); // Get password
         String confpass = String.valueOf(confirmPassField.getPassword()); // Get confirmed password
         String name = fullField.getText(); // Get full name
-        String PhoneNumber = phoneNumberField.getText(); // Get phone number
+        String phoneNumber = phoneNumberField.getText(); // Get phone number
 
         // Check if fields are empty
         boolean userEmpty = user.isEmpty(); // Check if username is empty
         boolean passEmpty = pass.isEmpty(); // Check if password is empty
         boolean confEmpty = confpass.isEmpty(); // Check if confirmed password is empty
         boolean nameEmpty = name.isEmpty(); // Check if full name is empty
-        boolean emailEmpty = PhoneNumber.isEmpty(); // Check if phone number is empty
+        boolean phoneEmpty = phoneNumber.isEmpty(); // Check if phone number is empty
 
         // Check if password matches confirmed password
         boolean check = pass.equals(confpass);
@@ -239,7 +222,7 @@ public class Signup extends JFrame implements ActionListener {
 
         try {
             // Check phone number length
-            if (PhoneNumber.length() != 11) {
+            if (phoneNumber.length() != 11) {
                 numcount++; // Increment numcount if phone number length is not equal to 11
             }
         } catch (Exception ex) {
@@ -247,7 +230,7 @@ public class Signup extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == signup) {
-            if (userEmpty || passEmpty || confEmpty || nameEmpty || emailEmpty) {
+            if (userEmpty || passEmpty || confEmpty || nameEmpty || phoneEmpty) {
                 // Display an error message if any field is empty
                 JOptionPane.showMessageDialog(
                         null, "Please fill all of the fields.", "Error!", JOptionPane.WARNING_MESSAGE);
@@ -275,90 +258,57 @@ public class Signup extends JFrame implements ActionListener {
                         null, "Password is not matching", " Error!", JOptionPane.WARNING_MESSAGE);
             } else {
                 try {
-                    File file = new File("./files/user_login.txt");
-                    if (!file.exists()) {
-                        // Create a new file if it doesn't exist
-                        boolean created = file.createNewFile();
-                        if (created) {
-                            System.out.println("User Login File created successfully.");
+                    File userFile = new File("./files/user_login.json");
+                    if (!userFile.exists()) {
+                        userFile.createNewFile();
+                        JSONObject userData = new JSONObject();
+                        userData.put("users", new JSONArray());
+                        try (FileWriter fileWriter = new FileWriter(userFile)) {
+                            fileWriter.write(userData.toString());
+                        }
+                    }
+
+                    File adminFile = new File("./files/admin_login.json");
+                    if (!adminFile.exists()) {
+                        createDefaultAdminFile(adminFile);
+                    }
+
+                    JSONObject userData = readJsonFile("./files/user_login.json");
+                    JSONObject adminData = readJsonFile("./files/admin_login.json");
+
+                    if (userData != null && adminData != null) {
+                        boolean userExists = checkUserExists(user, userData);
+                        boolean adminExists = checkAdminExists(user, adminData);
+
+                        if (!userExists && !adminExists) {
+                            JSONArray users = userData.getJSONArray("users");
+
+                            JSONObject newUser = new JSONObject();
+                            newUser.put("fullName", name);
+                            newUser.put("username", user);
+                            newUser.put("password", pass);
+                            newUser.put("phoneNumber", phoneNumber);
+                            newUser.put("timeAndDate", getCurrentTimeAndDate());
+
+                            users.put(newUser);
+
+                            try (FileWriter fileWriter = new FileWriter(userFile)) {
+                                fileWriter.write(userData.toString());
+                            }
+
+                            System.out.println("New User details added");
+                            this.setVisible(false);
+                            new Login(); // Open the login window
                         } else {
-                            System.out.println("User Login File creation failed.");
+                            // Display a warning message if username is already taken
+                            JOptionPane.showMessageDialog(
+                                    null, "User name already taken", "Warning", JOptionPane.WARNING_MESSAGE);
                         }
                     }
-                    FileWriter fileWriter = new FileWriter(file, true);
-                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                    PrintWriter printWriter = new PrintWriter(bufferedWriter);
-
-                    LocalDateTime myDateObj = LocalDateTime.now();
-                    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("HH:mm a, dd/MM/yyyy");
-
-                    String timeAndDate = myDateObj.format(myFormatObj);
-
-                    // User Login file checked
-                    int totalLines = 0; // Check the total lines in User Login file
-                    BufferedReader readFile = new BufferedReader(new FileReader("./files/user_login.txt"));
-                    while (readFile.readLine() != null) {
-                        totalLines++;
-                    }
-                    readFile.close();
-
-                    // Admin login file checked
-                    BufferedReader adminFile = new BufferedReader(new FileReader("./files/admin_login.txt"));
-                    int totalLines2 = 0; // Check the total lines in Admin Login file
-                    while (adminFile.readLine() != null) {
-                        totalLines2++;
-                    }
-                    adminFile.close();
-
-                    boolean userflag = false;
-                    boolean adminflag = false;
-
-                    // for user
-                    for (int i = 0;
-                         i < totalLines;
-                         i++) { // Check if the username already exists in User Login file
-                        String line = Files.readAllLines(Paths.get("./files/user_login.txt")).get(i);
-                        if (line.equals("User Name : " + user)) {
-                            userflag = true;
-                            break;
-                        }
-                    }
-                    for (int i = 0;
-                         i < totalLines2;
-                         i++) {
-                        String line = Files.readAllLines(Paths.get("./files/admin_login.txt")).get(i);
-                        if (line.equals("User Name : " + user)) {
-                            adminflag = true;
-                            break;
-                        }
-                    }
-                    if (!userflag && !adminflag) {
-                        printWriter.println("===============================================");
-                        printWriter.println("Full Name : " + name);
-                        printWriter.println("User Name : " + user);
-                        printWriter.println("Password : " + pass);
-                        printWriter.println("Phone : " + PhoneNumber);
-                        printWriter.println("Time & Date : " + timeAndDate);
-                        printWriter.println("===============================================");
-
-                        System.out.println("New User details added");
-
-                        this.setVisible(false);
-                        new Login(); // Open the login window
-
-                    } else {
-                        // Display a warning message if username is already taken
-                        JOptionPane.showMessageDialog(
-                                null, "User name already taken", "Warning", JOptionPane.WARNING_MESSAGE);
-                    }
-
-                    printWriter.close();
-
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
-
         } else if (e.getSource() == EyeBtn) {
             if (EyeBtn.isSelected()) {
                 EyeBtn.setIcon(on); // Set eye icon to "on"
@@ -389,6 +339,46 @@ public class Signup extends JFrame implements ActionListener {
         }
     }
 
+    private void createDefaultAdminFile(File file) throws IOException {
+        JSONObject admin = new JSONObject();
+        admin.put("username", "admin");
+        admin.put("password", "admin");
+
+        try (FileWriter fileWriter = new FileWriter(file)) {
+            fileWriter.write(admin.toString());
+        }
+    }
+
+    private JSONObject readJsonFile(String filePath) {
+        try (FileReader reader = new FileReader(filePath)) {
+            return new JSONObject(new JSONTokener(reader));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private boolean checkUserExists(String username, JSONObject userData) {
+        JSONArray users = userData.getJSONArray("users");
+        for (int i = 0; i < users.length(); i++) {
+            JSONObject userObj = users.getJSONObject(i);
+            if (userObj.getString("username").equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkAdminExists(String username, JSONObject adminData) {
+        return adminData.getString("username").equals(username);
+    }
+
+    private String getCurrentTimeAndDate() {
+        LocalDateTime myDateObj = LocalDateTime.now();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("HH:mm a, dd/MM/yyyy");
+        return myDateObj.format(myFormatObj);
+    }
+
     public boolean validateUsername(String username) {
         System.out.println("validateUsername function called");
         // Check for spaces
@@ -407,7 +397,5 @@ public class Signup extends JFrame implements ActionListener {
         int length = username.length();
         System.out.println("validateUsername function executed successfully");
         return length >= 3 && length <= 20;
-
-        // Additional validation rules can be added here
     }
 }

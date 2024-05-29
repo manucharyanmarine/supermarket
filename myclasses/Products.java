@@ -1,5 +1,10 @@
 package myclasses;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -10,7 +15,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Products extends JFrame implements ActionListener {
     // TODO Table data edit and table shift
@@ -115,21 +124,23 @@ public class Products extends JFrame implements ActionListener {
         Font headerFont = header.getFont();
         header.setFont(headerFont.deriveFont(Font.BOLD));
 
-        try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (!line.equals("Products Detail")) {
-                    String[] rowData = new String[6];
-                    rowData[0] = line;
-                    for (int i = 1; i < 6; i++) {
-                        rowData[i] = br.readLine();
-                    }
-                    model.addRow(rowData);
-                    br.readLine();
-                    br.readLine();
-                }
+        try (BufferedReader br = new BufferedReader(new FileReader("files/products.json"))) {
+            JSONObject productsData = new JSONObject(new JSONTokener(br));
+            JSONArray products = productsData.getJSONArray("products");
+
+            for (int i = 0; i < products.length(); i++) {
+                JSONObject product = products.getJSONObject(i);
+                String[] rowData = new String[6];
+                rowData[0] = product.get("id").toString();
+                rowData[1] = product.getString("name");
+                rowData[2] = product.getString("category");
+                rowData[3] = product.getString("price");
+                rowData[4] = product.getString("status");
+                rowData[5] = product.get("quantity").toString();
+
+                model.addRow(rowData);
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
 
@@ -225,26 +236,13 @@ public class Products extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Integer productId_fld = null;
-        try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (Objects.equals(line, "Products Detail")) {
-                    productId_fld = Integer.valueOf(br.readLine());
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        Integer productId_fld = -1;
         String prodId = String.valueOf(productId_fld + 1);
         String prodName = productName_fld.getText();
         String prodCategory = (String) productCategory_box.getSelectedItem();
         String prodPrice = productPrice_fld.getText().trim();
         String prodStatus = (String) productStatus_box.getSelectedItem();
         String prodCount = productQuantity_fld.getText().trim();
-
-        boolean prodPriceEmpty = productPrice_fld.getText().isEmpty();
-        boolean prodQuantityEmpty = productQuantity_fld.getText().isEmpty();
 
         if (e.getSource() == logOut_btn) {
             int yesORno =
@@ -259,236 +257,129 @@ public class Products extends JFrame implements ActionListener {
             setVisible(false);
             new DashBoard();
         } else if (e.getSource() == add_btn) {
-            if (!prodPriceEmpty && !prodQuantityEmpty) {
-                if (!prodPrice.matches("\\d+")) {
-                    JOptionPane.showMessageDialog(
-                            null, "Invalid Price", "Error", JOptionPane.WARNING_MESSAGE);
-                } else {
-                    try {
-                        String line = "files/products.txt";
-                        try {
-                            File file = new File(line);
-                            if (!file.exists()) {
-                                file.createNewFile();
-                                FileWriter fileWriter = new FileWriter(file, true);
-                                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                                PrintWriter printWriter = new PrintWriter(bufferedWriter);
-                                printWriter.close();
+//            String prodName = productName_fld.getText().trim();
+//            String prodPrice = productPrice_fld.getText().trim();
+//            String prodCount = productQuantity_fld.getText().trim();
+//            String prodCategory = productCategory_fld.getText().trim();
+//            String prodStatus = productStatus_fld.getText().trim();
+
+            // Check if product name, price, and quantity are not empty
+            if (!prodName.isEmpty() && !prodPrice.isEmpty() && !prodCount.isEmpty()) {
+                try {
+                    // File path for the products JSON file
+                    String filePath = "files/products.json";
+                    File file = new File(filePath);
+                    JSONArray productsArray;
+                    int newProdId = 1;
+
+                    // Read existing JSON data or create a new array
+                    if (!file.exists()) {
+                        file.createNewFile();
+                        productsArray = new JSONArray();
+                    } else {
+                        // Read the content from the file
+                        String content = new String(Files.readAllBytes(Paths.get(filePath)));
+
+                        // Parse the content as a JSONObject
+                        JSONObject jsonContent = new JSONObject(content);
+
+                        // Get the "products" array from the JSONObject
+                        productsArray = jsonContent.getJSONArray("products");
+
+                        // Find the highest existing product ID
+                        for (int i = 0; i < productsArray.length(); i++) {
+                            JSONObject product = productsArray.getJSONObject(i);
+                            int prodId1 = product.getInt("id");
+                            if (prodId1 >= newProdId) {
+                                newProdId = prodId1 + 1;
                             }
-
-                            BufferedReader rdfile3 = new BufferedReader(new FileReader("files/products.txt"));
-                            rdfile3.close();
-
-                            FileWriter fileWriter = new FileWriter(file, true);
-                            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                            PrintWriter printWriter = new PrintWriter(bufferedWriter);
-                            printWriter.println();
-                            printWriter.println("Products Detail");
-                            printWriter.println(prodId);
-                            printWriter.println(prodName);
-                            printWriter.println(prodCategory);
-                            printWriter.println(prodPrice);
-                            printWriter.println(prodPrice);
-                            printWriter.println(prodStatus);
-                            printWriter.println(prodCount);
-                            printWriter.close();
-
-                            productPrice_fld.setText(null);
-                            productName_fld.setText(null);
-
-                            System.out.println("New Product added");
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
                         }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
                     }
+
+                    // Create a new product JSONObject
+                    JSONObject newProduct = new JSONObject();
+                    newProduct.put("id", newProdId);
+                    newProduct.put("name", prodName);
+                    newProduct.put("category", prodCategory);
+                    newProduct.put("price", prodPrice);
+                    newProduct.put("status", prodStatus);
+                    newProduct.put("quantity", prodCount);
+
+                    // Add the new product to the products array
+                    productsArray.put(newProduct);
+
+                    // Write the updated JSON data to the file
+                    try (FileWriter fileWriter = new FileWriter(file)) {
+                        // Write the entire JSON object, including the "products" key
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("products", productsArray);
+                        fileWriter.write(jsonObject.toString(4)); // Indent for better readability
+                    }
+
+                    // Clear text fields
+                    productName_fld.setText(null);
+                    productPrice_fld.setText(null);
+                    productQuantity_fld.setText(null);
+
+                    // Refresh table data
+                    refreshTable();
+
+                    System.out.println("New Product added");
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                } catch (JSONException ex) {
+                    ex.printStackTrace();
                 }
             } else {
-                JOptionPane.showMessageDialog(
-                        null, "Please Fill all the box", "Error", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Please fill in all required fields.");
             }
-            DefaultTableModel model = (DefaultTableModel) table.getModel();
-            model.setRowCount(0);
-
-            try (BufferedReader br = new BufferedReader(new FileReader("files/products.txt"))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (!line.equals("Products Detail")) {
-                        String[] rowData = new String[6];
-                        rowData[0] = line;
-                        for (int i = 1; i < 6; i++) {
-                            rowData[i] = br.readLine();
-                        }
-                        model.addRow(rowData);
-                        br.readLine();
-                        br.readLine();
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
         } else if (e.getSource() == del_btn) {
             if (JOptionPane.showConfirmDialog(
-                    null, "Confirmation", "Remove This Room?", JOptionPane.YES_NO_OPTION)
+                    null, "Confirmation", "Remove This product?", JOptionPane.YES_NO_OPTION)
                     == JOptionPane.YES_OPTION) {
                 DefaultTableModel tempTbl = (DefaultTableModel) table.getModel();
                 int selectedRow = table.getSelectedRow();
 
-                if (table.getSelectedRow() != -1) {
-                    String[] data = new String[6];
-                    for (int i = 0; i < 6; i++) {
-                        data[i] = tempTbl.getValueAt(selectedRow, i).toString();
-                    }
-                    System.out.println(data);
-                    if (data[4].equals("Not Have")) {
-                        try {
-                            File inputFile = new File("files/products.txt");
-                            File tempFile = new File("./files/products_temp.txt");
-                            System.out.println("temp file created");
+                if (selectedRow != -1) {
+                    String productId = tempTbl.getValueAt(selectedRow, 0).toString();
+                    try {
+                        File jsonFile = new File("files/products.json");
+                        List<Product> products = readProductsFromJson(jsonFile);
 
-                            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-                            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-                            System.out.println("temp file updated");
-
-                            String currentLine;
-                            int lineCounter = 0;
-                            while ((currentLine = reader.readLine()) != null) {
-                                lineCounter++;
-                                if (currentLine.contains(data[0])) {
-                                    break;
-                                }
+                        // Find and remove the product with the matching ID
+                        Product productToRemove = null;
+                        for (Product product : products) {
+                            if (product.getId().equals(productId)) {
+                                productToRemove = product;
+                                break;
                             }
-
-                            reader.close();
-                            reader = new BufferedReader(new FileReader(inputFile));
-                            int k = 0;
-                            while ((currentLine = reader.readLine()) != null) {
-                                k++;
-                                if (k > (lineCounter - 2) && k < (lineCounter + 6)) {
-                                } else {
-                                    // write all other lines to the temp file
-                                    writer.write(currentLine + System.getProperty("line.separator"));
-                                }
-                            }
-
-                            writer.close();
-                            reader.close();
-
-                            inputFile.delete();
-                            System.out.println("Original file deleted");
-                            tempFile.renameTo(inputFile);
-                            System.out.println("temp file renamed as original file");
-
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
-                        tempTbl.removeRow(table.getSelectedRow());
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Room is Booked Please check out it first");
-                    }
+                        if (productToRemove != null) {
+                            products.remove(productToRemove);
+                            writeProductsToJson(jsonFile, products);
+                            tempTbl.removeRow(selectedRow);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Product not found!");
+                        }
 
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 } else {
                     if (table.getRowCount() == 0) {
-                        JOptionPane.showMessageDialog(this, "Table is Empty!");
-
+                        JOptionPane.showMessageDialog(null, "Table is Empty!");
                     } else {
-                        JOptionPane.showMessageDialog(this, "Please select A row to delete ");
+                        JOptionPane.showMessageDialog(null, "Please select a row to delete.");
                     }
                 }
             }
         } else if (e.getSource() == update_btn) {
-            int selectedRow = table.getSelectedRow();
-
-            if (selectedRow != -1) {
-                String id = table.getValueAt(selectedRow, 0).toString();
-                String name = table.getValueAt(selectedRow, 1).toString();
-                String category = table.getValueAt(selectedRow, 2).toString();
-                String price = table.getValueAt(selectedRow, 3).toString();
-                String status = table.getValueAt(selectedRow, 4).toString();
-                String quantity = table.getValueAt(selectedRow, 5).toString();
-
-                JTextField idField = new JTextField(id);
-                JTextField nameField = new JTextField(name);
-                JTextField categoryField = new JTextField(category);
-                JTextField priceField = new JTextField(price);
-                JTextField quantityField = new JTextField(quantity);
-
-                JPanel panel = new JPanel(new GridLayout(0, 1));
-                panel.add(new JLabel("ID:"));
-                panel.add(idField);
-                panel.add(new JLabel("Name:"));
-                panel.add(nameField);
-                panel.add(new JLabel("Category:"));
-                panel.add(categoryField);
-                panel.add(new JLabel("Price:"));
-                panel.add(priceField);
-                panel.add(new JLabel("Quantity:"));
-                panel.add(quantityField);
-
-                int result = JOptionPane.showConfirmDialog(null, panel, "Update Product",
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                if (result == JOptionPane.OK_OPTION) {
-                    // Update the data in the table
-                    table.setValueAt(idField.getText(), selectedRow, 0);
-                    table.setValueAt(nameField.getText(), selectedRow, 1);
-                    table.setValueAt(categoryField.getText(), selectedRow, 2);
-                    table.setValueAt(priceField.getText(), selectedRow, 3);
-                    table.setValueAt(quantityField.getText(), selectedRow, 5);
-
-                    try {
-                        File inputFile = new File("files/products.txt");
-                        File tempFile = new File("./files/products_temp.txt");
-
-                        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-                        String currentLine;
-                        while ((currentLine = reader.readLine()) != null) {
-                            String[] id_f = currentLine.split(",");
-                            if (id_f.length > 0 && id_f[0].equals(id)) { // Assuming ID is the first field
-                                reader.readLine();
-                                reader.readLine();
-                                reader.readLine();
-                                reader.readLine();
-                                reader.readLine();
-                                reader.readLine();
-                                reader.readLine();
-                                continue;
-                            }
-                            writer.write(currentLine + System.getProperty("line.separator"));
-                        }
-
-                        writer.write(System.getProperty("line.separator"));
-                        writer.write("Products Detail" + System.getProperty("line.separator"));
-                        writer.write(idField.getText() + System.getProperty("line.separator"));
-                        writer.write(nameField.getText() + System.getProperty("line.separator"));
-                        writer.write(categoryField.getText() + System.getProperty("line.separator"));
-                        writer.write(priceField.getText() + System.getProperty("line.separator"));
-                        writer.write(status + System.getProperty("line.separator"));
-                        writer.write(quantityField.getText() + System.getProperty("line.separator"));
-                        writer.write(System.getProperty("line.separator"));
-
-                        writer.close();
-                        reader.close();
-
-                        inputFile.delete();
-                        tempFile.renameTo(inputFile);
-
-                        JOptionPane.showMessageDialog(this, "Product updated successfully!");
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Please select a row to update!");
-            }
+            updateProduct();
         } else if (e.getSource() == search_btn) {
             searchProducts(search_fld.getText());
         }
     }
-
     private void searchProducts(String searchText) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
@@ -498,6 +389,167 @@ public class Products extends JFrame implements ActionListener {
             sorter.setRowFilter(null);
         } else {
             sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
+        }
+    }
+
+    private void refreshTable() {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.setRowCount(0);
+
+        try {
+            // Read the content from the file
+            String content = new String(Files.readAllBytes(Paths.get("files/products.json")));
+
+            // Parse the content as a JSONObject
+            JSONObject jsonContent = new JSONObject(content);
+
+            // Get the "products" array from the JSONObject
+            JSONArray productsArray = jsonContent.getJSONArray("products");
+
+            for (int i = 0; i < productsArray.length(); i++) {
+                JSONObject product = productsArray.getJSONObject(i);
+                String[] rowData = {
+                        product.get("id").toString(),
+                        product.getString("name"),
+                        product.getString("category"),
+                        product.getString("price"),
+                        product.getString("status"),
+                        product.get("quantity").toString()
+                };
+                model.addRow(rowData);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private List<Product> readProductsFromJson(File file) throws IOException {
+        List<Product> products = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            StringBuilder jsonContent = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            JSONObject jsonObject = new JSONObject(jsonContent.toString());
+            JSONArray productsArray = jsonObject.getJSONArray("products");
+            for (int i = 0; i < productsArray.length(); i++) {
+                JSONObject productJson = productsArray.getJSONObject(i);
+                Product product = new Product(
+                        productJson.getString("id"),
+                        productJson.getString("name"),
+                        productJson.getString("category"),
+                        productJson.getString("status"),
+                        productJson.getInt("quantity"),
+                        productJson.getString("price")
+                );
+                products.add(product);
+            }
+        }
+        return products;
+    }
+
+    private void writeProductsToJson(File file, List<Product> products) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            JSONObject jsonObject = new JSONObject();
+            JSONArray productsArray = new JSONArray();
+            for (Product product : products) {
+                JSONObject productJson = new JSONObject();
+                productJson.put("id", product.getId());
+                productJson.put("name", product.getName());
+                productJson.put("category", product.getCategory());
+                productJson.put("status", product.getStatus());
+                productJson.put("quantity", product.getQuantity());
+                productJson.put("price", product.getPrice());
+                productsArray.put(productJson);
+            }
+            jsonObject.put("products", productsArray);
+            writer.write(jsonObject.toString(4)); // Indented JSON string with 4 spaces
+        }
+    }
+
+    public void updateProduct() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            // Get the product ID from the first column of the selected row
+            String prodId = table.getValueAt(selectedRow, 0).toString();
+
+            // Prompt the user to enter new details
+            JTextField nameField = new JTextField(table.getValueAt(selectedRow, 1).toString());
+            JTextField categoryField = new JTextField(table.getValueAt(selectedRow, 2).toString());
+            JTextField priceField = new JTextField(table.getValueAt(selectedRow, 3).toString());
+            JTextField statusField = new JTextField(table.getValueAt(selectedRow, 4).toString());
+            JTextField quantityField = new JTextField(table.getValueAt(selectedRow, 5).toString());
+
+            Object[] message = {
+                    "Name:", nameField,
+                    "Category:", categoryField,
+                    "Price:", priceField,
+                    "Status:", statusField,
+                    "Quantity:", quantityField,
+            };
+
+            int option = JOptionPane.showConfirmDialog(null, message, "Update Product", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                try {
+                    // File path for the products JSON file
+                    String filePath = "files/products.json";
+                    File file = new File(filePath);
+
+                    // Read the content of the JSON file
+                    String content = new String(Files.readAllBytes(Paths.get(filePath)));
+                    JSONObject jsonObject = new JSONObject(content); // Parse content as JSONObject
+                    JSONArray productsArray = jsonObject.getJSONArray("products"); // Extract the "products" array
+
+                    // Find and remove the existing product from the JSON array
+                    for (int i = 0; i < productsArray.length(); i++) {
+                        JSONObject product = productsArray.getJSONObject(i);
+                        if (product.getString("id").equals(prodId)) {
+                            productsArray.remove(i);
+                            break;
+                        }
+                    }
+
+                    // Create a new JSON object for the updated product
+                    JSONObject updatedProduct = new JSONObject();
+                    updatedProduct.put("id", prodId);
+                    updatedProduct.put("name", nameField.getText().trim());
+                    updatedProduct.put("category", categoryField.getText().trim());
+                    updatedProduct.put("price", priceField.getText().trim());
+                    updatedProduct.put("status", statusField.getText().trim());
+                    updatedProduct.put("quantity", quantityField.getText().trim());
+
+                    // Add the updated product to the JSON array
+                    productsArray.put(updatedProduct);
+
+                    // Write the updated JSON data to the file
+                    try (FileWriter fileWriter = new FileWriter(file)) {
+                        fileWriter.write(jsonObject.toString(4)); // Indent for better readability
+                        fileWriter.flush(); // Ensure data is actually written
+                    }
+
+                    // Update the table model with new values
+                    DefaultTableModel model = (DefaultTableModel) table.getModel();
+                    model.setValueAt(nameField.getText().trim(), selectedRow, 1);
+                    model.setValueAt(categoryField.getText().trim(), selectedRow, 2);
+                    model.setValueAt(priceField.getText().trim(), selectedRow, 3);
+                    model.setValueAt(statusField.getText().trim(), selectedRow, 4);
+                    model.setValueAt(quantityField.getText().trim(), selectedRow, 5);
+
+                    // Refresh table data
+                    table.repaint();
+
+                    System.out.println("Product updated successfully");
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "An error occurred while updating the JSON file.");
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Please select a row to update.");
         }
     }
 

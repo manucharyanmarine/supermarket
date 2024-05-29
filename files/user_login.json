@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "password": "1234",
+      "phoneNumber": "01721199215",
+      "fullName": "Aaaa",
+      "timeAndDate": "13:47 PM, 24/05/2024",
+      "username": "qwerty"
+    },
+    {
+      "password": "1234",
+      "phoneNumber": "01721199215",
+      "fullName": "Bbbb",
+      "timeAndDate": "23:47 PM, 28/05/2024",
+      "username": "qwerty2"
+    },
+    {
+      "password": "1234",
+      "phoneNumber": "01234567890",
+      "fullName": "Sssss",
+      "timeAndDate": "01:50 AM, 29/05/2024",
+      "username": "asdfgh"
+    }
+  ]
+}

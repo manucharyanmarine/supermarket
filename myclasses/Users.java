@@ -102,20 +102,28 @@ public class Users extends JFrame implements ActionListener {
         Font headerFont = header.getFont();
         header.setFont(headerFont.deriveFont(Font.BOLD));
 
-        try (BufferedReader br = new BufferedReader(new FileReader("files/user_login.txt"))) {
+        try {
+            File jsonFile = new File("files/user_login.json");
+            BufferedReader reader = new BufferedReader(new FileReader(jsonFile));
+            StringBuilder jsonContent = new StringBuilder();
             String line;
-            while ((line = br.readLine()) != null) {
-                if (!line.equals("==============================================="))
-                {
-                    String[] rowData = new String[5];
-                    rowData[0] = line;
-                    for (int i = 1; i < 5; i++) {
-                        rowData[i] = br.readLine();
-                    }
-                    model.addRow(rowData);
-                    br.readLine();
-                    br.readLine();
-                }
+            while ((line = reader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            reader.close();
+
+            JSONObject jsonObject = new JSONObject(jsonContent.toString());
+            JSONArray usersArray = jsonObject.getJSONArray("users");
+
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject userObject = usersArray.getJSONObject(i);
+                String[] rowData = new String[5];
+                rowData[0] = userObject.getString("username");
+                rowData[1] = userObject.getString("fullName");
+                rowData[2] = userObject.getString("password");
+                rowData[3] = userObject.getString("phoneNumber");
+                rowData[4] = userObject.getString("timeAndDate");
+                model.addRow(rowData);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -133,6 +141,7 @@ public class Users extends JFrame implements ActionListener {
         this.setVisible(true);
     }
 
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == logOut_btn) {
@@ -149,71 +158,94 @@ public class Users extends JFrame implements ActionListener {
             new DashBoard();
         } else if (e.getSource() == del_btn) {
             if (JOptionPane.showConfirmDialog(
-                    null, "Confirmation", "Remove This product?", JOptionPane.YES_NO_OPTION)
+                    null, "Confirmation", "Remove This user?", JOptionPane.YES_NO_OPTION)
                     == JOptionPane.YES_OPTION) {
                 DefaultTableModel tempTbl = (DefaultTableModel) table.getModel();
                 int selectedRow = table.getSelectedRow();
 
-                if (table.getSelectedRow() != -1) {
-                    String[] data = new String[6];
-                    for (int i = 0; i < 5; i++) {
-                        data[i] = tempTbl.getValueAt(selectedRow, i).toString();
-                    }
-                    if (data[4].equals("Not Booked")) {
-                        try {
-                            File inputFile = new File("files/products.txt");
-                            File tempFile = new File("./files/products_temp.txt");
-                            System.out.println("temp file created");
+                if (selectedRow != -1) {
+                    String username = tempTbl.getValueAt(selectedRow, 0).toString();
+                    try {
+                        File jsonFile = new File("files/user_login.json");
+                        List<User> users = readUsersFromJson(jsonFile);
 
-                            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-                            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-                            System.out.println("temp file updated");
-
-                            String currentLine;
-                            int lineCounter = 0;
-                            while ((currentLine = reader.readLine()) != null) {
-                                lineCounter++;
-                                if (currentLine.contains(data[0])) {
-                                    break;
-                                }
+                        // Check if the user with the specified username exists
+                        boolean found = false;
+                        for (User user : users) {
+                            if (user.getUsername().equals(username)) {
+                                found = true;
+                                break;
                             }
-
-                            reader.close();
-                            reader = new BufferedReader(new FileReader(inputFile));
-                            int k = 0;
-                            while ((currentLine = reader.readLine()) != null) {
-                                k++;
-                                if (k > (lineCounter - 2) && k < (lineCounter + 6)) {
-                                } else {
-                                    writer.write(currentLine + System.getProperty("line.separator"));
-                                }
-                            }
-                            writer.close();
-                            reader.close();
-
-                            inputFile.delete();
-                            System.out.println("Original file deleted");
-
-                            tempFile.renameTo(inputFile);
-                            System.out.println("temp file renamed as original file");
-
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
                         }
-                        tempTbl.removeRow(table.getSelectedRow());
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Not have product");
-                    }
 
+                        if (found) {
+                            // Remove the user with the matching username
+                            users.removeIf(user -> user.getUsername().equals(username));
+                            writeUsersToJson(jsonFile, users);
+                            tempTbl.removeRow(selectedRow);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "User not found!");
+                        }
+
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 } else {
                     if (table.getRowCount() == 0) {
-                        JOptionPane.showMessageDialog(this, "Table is Empty!");
-
+                        JOptionPane.showMessageDialog(null, "Table is Empty!");
                     } else {
-                        JOptionPane.showMessageDialog(this, "Please select A row to delete ");
+                        JOptionPane.showMessageDialog(null, "Please select a row to delete.");
                     }
                 }
             }
         }
+    }
+
+    private List<User> readUsersFromJson(File file) throws IOException {
+        List<User> users = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            StringBuilder jsonContent = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonContent.append(line);
+            }
+            JSONObject jsonObject = new JSONObject(jsonContent.toString());
+            JSONArray usersArray = jsonObject.getJSONArray("users");
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject userJson = usersArray.getJSONObject(i);
+                User user = new User(
+                        userJson.getString("username"),
+                        userJson.getString("password"),
+                        userJson.getString("fullName"),
+                        userJson.getString("phoneNumber"),
+                        userJson.getString("timeAndDate")
+                );
+                users.add(user);
+            }
+        }
+        return users;
+    }
+
+    private void writeUsersToJson(File file, List<User> users) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            JSONObject jsonObject = new JSONObject();
+            JSONArray usersArray = new JSONArray();
+            for (User user : users) {
+                JSONObject userJson = new JSONObject();
+                userJson.put("username", user.getUsername());
+                userJson.put("password", user.getPassword());
+                userJson.put("fullName", user.getFullName());
+                userJson.put("phoneNumber", user.getPhoneNumber());
+                userJson.put("timeAndDate", user.getTimeAndDate());
+                usersArray.put(userJson);
+            }
+            jsonObject.put("users", usersArray);
+            writer.write(jsonObject.toString(4)); // Indented JSON string with 4 spaces
+        }
+    }
+
+    public static void main(String args[]) {
+        Users manageProducts = new Users();
+        manageProducts.setVisible(true);
     }
 }

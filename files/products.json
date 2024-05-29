@@ -1,0 +1,124 @@
+{
+  "products": [
+    {
+      "quantity": 8,
+      "price": "100",
+      "name": "Product 1",
+      "id": "1",
+      "category": "Drink",
+      "status": "Available"
+    },
+    {
+      "quantity": 4,
+      "price": "200",
+      "name": "Product 2",
+      "id": "2",
+      "category": "Bread",
+      "status": "Available"
+    },
+    {
+      "quantity": 5,
+      "price": "500",
+      "name": "Product 3",
+      "id": "3",
+      "category": "Coat",
+      "status": "Available"
+    },
+    {
+      "quantity": 0,
+      "price": "200",
+      "name": "Product 4",
+      "id": "4",
+      "category": "Bread",
+      "status": "Unavailable"
+    },
+    {
+      "quantity": 5,
+      "price": "200",
+      "name": "Product 5",
+      "id": "5",
+      "category": "Bread",
+      "status": "Available"
+    },
+    {
+      "quantity": 5,
+      "price": "900",
+      "name": "Product 6",
+      "id": "6",
+      "category": "Bread",
+      "status": "Available"
+    },
+    {
+      "quantity": 5,
+      "price": "700",
+      "name": "Product 7",
+      "id": "7",
+      "category": "Bread",
+      "status": "Available"
+    },
+    {
+      "quantity": 5,
+      "price": "400",
+      "name": "Product 8",
+      "id": "8",
+      "category": "Bread",
+      "status": "Available"
+    },
+    {
+      "quantity": 5,
+      "price": "200",
+      "name": "Product 9",
+      "id": "9",
+      "category": "Bread",
+      "status": "Available"
+    },
+    {
+      "quantity": 0,
+      "price": "500",
+      "name": "Product 10",
+      "id": "10",
+      "category": "Drink",
+      "status": "Unavailable"
+    },
+    {
+      "quantity": 0,
+      "price": "400",
+      "name": "Product 11",
+      "id": "11",
+      "category": "Drink",
+      "status": "Unavailable"
+    },
+    {
+      "quantity": 0,
+      "price": "300",
+      "name": "Product 12",
+      "id": "12",
+      "category": "Drink",
+      "status": "Unavailable"
+    },
+    {
+      "quantity": "5",
+      "price": "300",
+      "name": "Product 13",
+      "id": "13",
+      "category": "Coat",
+      "status": "Available"
+    },
+    {
+      "quantity": "5",
+      "price": "200",
+      "name": "Product 14",
+      "id": "14",
+      "category": "Coat",
+      "status": "Available"
+    },
+    {
+      "quantity": "5",
+      "price": "300",
+      "name": "Product 15",
+      "id": "15",
+      "category": "Coat",
+      "status": "Available"
+    }
+  ]
+}
